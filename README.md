@@ -27,3 +27,5 @@ The POS RESTful API project aims to implement a robust API for a Point of Sale (
    ```bash
    git clone https://github.com/your_username/pos-restful-api.git
    cd pos-restful-api
+   php artisan migration
+   php artisan db:seed
