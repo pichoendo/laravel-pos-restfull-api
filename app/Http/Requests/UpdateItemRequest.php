@@ -4,6 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="UpdateItemRequest",
+ *     description="Update Item Request Schema",
+ *     type="object",
+ *     required={"name", "image", "price"}
+ * )
+ */
 class UpdateItemRequest extends FormRequest
 {
     /**
@@ -29,3 +37,4 @@ class UpdateItemRequest extends FormRequest
         ];
     }
 }
+

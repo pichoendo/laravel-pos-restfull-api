@@ -6,6 +6,13 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @OA\Schema(
+ *     schema="EmployeeSalesCommissionLog",
+ *     title="Employee Sales Commission Log",
+ *     required={"employee_id", "description", "value", "type"}
+ * )
+ */
 class EmployeeSalesCommissionLog extends Model
 {
     use HasFactory;
@@ -14,6 +21,32 @@ class EmployeeSalesCommissionLog extends Model
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
+     *
+     * @OA\Property(
+     *     property="employee_id",
+     *     type="integer",
+     *     description="The ID of the employee",
+     *     example="1"
+     * )
+     * @OA\Property(
+     *     property="description",
+     *     type="string",
+     *     description="The description of the sales commission log",
+     *     example="Bonus for exceeding sales target"
+     * )
+     * @OA\Property(
+     *     property="value",
+     *     type="float",
+     *     format="double",
+     *     description="The value of the sales commission log",
+     *     example="500.00"
+     * )
+     * @OA\Property(
+     *     property="type",
+     *     type="string",
+     *     description="The type of the sales commission log",
+     *     example="Bonus"
+     * )
      */
     protected $fillable = [
         'employee_id',
@@ -61,9 +94,16 @@ class EmployeeSalesCommissionLog extends Model
      * Get the employee who owns this commission log.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     *
+     * @OA\Property(
+     *     property="employee",
+     *     type="object",
+     *     ref="#/components/schemas/Employee"
+     * )
      */
     public function employee()
     {
         return $this->belongsTo(Employee::class);
     }
 }
+

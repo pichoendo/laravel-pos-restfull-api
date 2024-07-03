@@ -6,6 +6,24 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+
+
+/**
+ * @OA\Schema(
+ *      schema="LoginRequest",
+ *      required={"username", "password"},
+ *      @OA\Property(
+ *          property="username",
+ *          type="string",
+ *          description="User's username"
+ *      ),
+ *      @OA\Property(
+ *          property="password",
+ *          type="string",
+ *          description="User's password"
+ *      )
+ * )
+ */
 class LoginRequest extends FormRequest
 {
     /**

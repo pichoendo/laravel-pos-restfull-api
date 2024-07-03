@@ -22,10 +22,44 @@ class MemberController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/members",
+     *     summary="List members",
+     *     description="Get a paginated list of members",
+     *     operationId="getMembers",
+     *     tags={"Members"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Number of items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search term",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Members fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Member")),
+     *             @OA\Property(property="message", type="string", example="Members fetched successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to fetch members. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -46,14 +80,37 @@ class MemberController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreMemberRequest  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/members",
+     *     summary="Create member",
+     *     description="Create a new member",
+     *     operationId="storeMember",
+     *     tags={"Members"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StoreMemberRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Member created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Member"),
+     *             @OA\Property(property="message", type="string", example="Member created successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to create member. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function store(StoreMemberRequest $request)
     {
-
         $param = $request->validated();
         try {
             $data = $this->memberService->create($param);
@@ -64,10 +121,37 @@ class MemberController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Member  $Member
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/members/{member}",
+     *     summary="Get member",
+     *     description="Fetch a specific member by ID",
+     *     operationId="showMember",
+     *     tags={"Members"},
+     *     @OA\Parameter(
+     *         name="member",
+     *         in="path",
+     *         description="Member ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Member fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Member"),
+     *             @OA\Property(property="message", type="string", example="Member fetched successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to fetch member. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function show(Member $Member)
     {
@@ -75,11 +159,41 @@ class MemberController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateMemberRequest  $request
-     * @param  \App\Models\Member  $Member
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *     path="/api/members/{member}",
+     *     summary="Update member",
+     *     description="Update an existing member",
+     *     operationId="updateMember",
+     *     tags={"Members"},
+     *     @OA\Parameter(
+     *         name="member",
+     *         in="path",
+     *         description="Member ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpdateMemberRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Member updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Member"),
+     *             @OA\Property(property="message", type="string", example="Member updated successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to update member. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function update(UpdateMemberRequest $request, Member $Member)
     {
@@ -93,10 +207,36 @@ class MemberController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Member  $Member
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/members/{member}",
+     *     summary="Delete member",
+     *     description="Delete a specific member by ID",
+     *     operationId="deleteMember",
+     *     tags={"Members"},
+     *     @OA\Parameter(
+     *         name="member",
+     *         in="path",
+     *         description="Member ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Member deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Member deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to delete member. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function destroy(Member $Member)
     {

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmployeeSalary;
-use App\Http\Requests\StoreEmployeeSalaryRequest;
 use App\Http\Requests\UpdateEmployeeSalaryRequest;
 
 class EmployeeSalaryController extends Controller

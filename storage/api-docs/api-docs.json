@@ -1,10 +1,10 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Dokumentasi API",
-        "description": "Lorem Ipsum",
+        "title": "Documentation POS API",
+        "description": "This API documentation outlines the features and endpoints of a Laravel project designed to master RESTful API development using Sanctum. It provides comprehensive documentation for secure user authentication, token-based sessions, and role-based access control. Developed as a learning tool, this project demonstrates best practices in Laravel API design, including resourceful routing, middleware application, and data validation techniques. It serves as a practical guide for developers aiming to implement modern API solutions with Laravel and Sanctum",
         "contact": {
-            "email": "hi.wasissubekti02@gmail.com"
+            "email": "pichoendoo@gmail.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-            "url": "http://my-default-host.com",
+            "url": "http://127.0.0.1:8000/",
             "description": "Demo API Server"
         }
     ],
@@ -470,10 +470,2495 @@
                     }
                 }
             }
+        },
+        "/api/coupons": {
+            "get": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "List coupons",
+                "description": "Get a paginated list of coupons",
+                "operationId": "getCoupons",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fetch successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Coupon"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fetch successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch coupons. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "Create a coupon",
+                "description": "Store a newly created coupon in storage",
+                "operationId": "storeCoupon",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreCouponRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Coupon created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Coupon"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Coupon created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create coupon. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coupons/{coupon}": {
+            "get": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "Fetch a coupon",
+                "description": "Display the specified coupon",
+                "operationId": "showCoupon",
+                "parameters": [
+                    {
+                        "name": "coupon",
+                        "in": "path",
+                        "description": "ID of the coupon",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fetch successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Coupon"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fetch successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Coupon not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Coupon not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "Update a coupon",
+                "description": "Update the specified coupon in storage",
+                "operationId": "updateCoupon",
+                "parameters": [
+                    {
+                        "name": "coupon",
+                        "in": "path",
+                        "description": "ID of the coupon",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCouponRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Coupon updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Coupon"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Coupon updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Coupon not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Coupon not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update coupon. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Coupons"
+                ],
+                "summary": "Delete a coupon",
+                "description": "Remove the specified coupon from storage",
+                "operationId": "deleteCoupon",
+                "parameters": [
+                    {
+                        "name": "coupon",
+                        "in": "path",
+                        "description": "ID of the coupon",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Coupon deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Coupon deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Coupon not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Coupon not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete coupon. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees": {
+            "get": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Get employees",
+                "description": "Fetch a list of employees with optional search query",
+                "operationId": "getEmployees",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of employees per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employees fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Employee"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fetch successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch employees. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Create employee",
+                "description": "Create a new employee",
+                "operationId": "storeEmployee",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreEmployeeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Employee created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Employee"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Employee created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create employee. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees/{employee}": {
+            "get": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Get employee",
+                "description": "Fetch a specific employee by ID",
+                "operationId": "getEmployee",
+                "parameters": [
+                    {
+                        "name": "employee",
+                        "in": "path",
+                        "description": "Employee ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Employee"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fetch successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch employee. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Update employee",
+                "description": "Update an existing employee",
+                "operationId": "updateEmployee",
+                "parameters": [
+                    {
+                        "name": "employee",
+                        "in": "path",
+                        "description": "Employee ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateEmployeeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Employee updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Employee"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Employee updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update employee. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Delete employee",
+                "description": "Delete a specific employee by ID",
+                "operationId": "deleteEmployee",
+                "parameters": [
+                    {
+                        "name": "employee",
+                        "in": "path",
+                        "description": "Employee ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete employee. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Get items",
+                "description": "Fetch a list of items with optional search query",
+                "operationId": "getItems",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Items fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Item"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fetch successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch items. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Create item",
+                "description": "Create a new item",
+                "operationId": "storeItem",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreItemRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Item"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create item. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/{item}": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Get item",
+                "description": "Fetch a specific item by ID",
+                "operationId": "getItem",
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "description": "Item ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Item"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fetch successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch item. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Update item",
+                "description": "Update an existing item",
+                "operationId": "updateItem",
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "description": "Item ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Item"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update item. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Delete item",
+                "description": "Delete a specific item by ID",
+                "operationId": "deleteItem",
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "description": "Item ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete item. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/{item}/stocks": {
+            "post": {
+                "tags": [
+                    "ItemStocks"
+                ],
+                "summary": "Create item stock",
+                "description": "Create a new item stock",
+                "operationId": "storeItemStock",
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "description": "Item ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreItemStockRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item stock created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemStock"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item stock created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create item stock. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/item-stocks/{itemStock}": {
+            "get": {
+                "tags": [
+                    "ItemStocks"
+                ],
+                "summary": "Get item stock",
+                "description": "Fetch a specific item stock by ID",
+                "operationId": "showItemStock",
+                "parameters": [
+                    {
+                        "name": "itemStock",
+                        "in": "path",
+                        "description": "Item Stock ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item stock fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemStock"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item stock fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch item stock. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "ItemStocks"
+                ],
+                "summary": "Update item stock",
+                "description": "Update an existing item stock",
+                "operationId": "updateItemStock",
+                "parameters": [
+                    {
+                        "name": "itemStock",
+                        "in": "path",
+                        "description": "Item Stock ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemStockRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item stock updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemStock"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item stock updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update item stock. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "ItemStocks"
+                ],
+                "summary": "Delete item stock",
+                "description": "Delete a specific item stock by ID",
+                "operationId": "deleteItemStock",
+                "parameters": [
+                    {
+                        "name": "itemStock",
+                        "in": "path",
+                        "description": "Item Stock ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item stock deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item stock deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete item stock. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/members": {
+            "get": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "List members",
+                "description": "Get a paginated list of members",
+                "operationId": "getMembers",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Members fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Member"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Members fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch members. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Create member",
+                "description": "Create a new member",
+                "operationId": "storeMember",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreMemberRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Member created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Member"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Member created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create member. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/members/{member}": {
+            "get": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Get member",
+                "description": "Fetch a specific member by ID",
+                "operationId": "showMember",
+                "parameters": [
+                    {
+                        "name": "member",
+                        "in": "path",
+                        "description": "Member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Member"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Member fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch member. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Update member",
+                "description": "Update an existing member",
+                "operationId": "updateMember",
+                "parameters": [
+                    {
+                        "name": "member",
+                        "in": "path",
+                        "description": "Member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateMemberRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Member updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Member"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Member updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update member. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Delete member",
+                "description": "Delete a specific member by ID",
+                "operationId": "deleteMember",
+                "parameters": [
+                    {
+                        "name": "member",
+                        "in": "path",
+                        "description": "Member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Member deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete member. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/members/{member}/sales": {
+            "get": {
+                "tags": [
+                    "Member Sales"
+                ],
+                "summary": "List member's sales",
+                "description": "Get a paginated list of sales for a specific member",
+                "operationId": "getMemberSales",
+                "parameters": [
+                    {
+                        "name": "member",
+                        "in": "path",
+                        "description": "Member ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sales fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Sales"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sales fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch sales. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/roles": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "List roles",
+                "description": "Get a paginated list of roles",
+                "operationId": "getRoles",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Roles fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Role"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Roles fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch roles. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Create role",
+                "description": "Create a new role",
+                "operationId": "createRole",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreRoleRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Role created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Role"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Role created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create role. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/roles/{id}": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Show role",
+                "description": "Get details of a specific role",
+                "operationId": "showRole",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Role ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Role"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Role fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch role. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Update role",
+                "description": "Update an existing role",
+                "operationId": "updateRole",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Role ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateRoleRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Role updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Role"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Role updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update role. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Delete role",
+                "description": "Delete a role",
+                "operationId": "deleteRole",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Role ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Role deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete role. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sales": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "List sales",
+                "description": "Get a paginated list of sales",
+                "operationId": "getSales",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sales fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Sales"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sales fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch sales. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Create sales",
+                "description": "Create a new sales record",
+                "operationId": "createSales",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreSalesRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sales created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Sales"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sales created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create sales. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sales/{id}": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Show sales",
+                "description": "Get details of a specific sales record",
+                "operationId": "showSales",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sales ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sales fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Sales"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sales fetched successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch sales. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Update sales",
+                "description": "Update an existing sales record",
+                "operationId": "updateSales",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sales ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSalesRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sales updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Sales"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sales updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update sales. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Delete sales",
+                "description": "Delete a sales record",
+                "operationId": "deleteSales",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sales ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sales deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sales deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete sales. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
+            "CreateStockRequest": {
+                "title": "Create Stock Request",
+                "required": [
+                    "item_id",
+                    "cogs"
+                ],
+                "properties": {
+                    "item_id": {
+                        "type": "string"
+                    },
+                    "cogs": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginRequest": {
+                "required": [
+                    "username",
+                    "password"
+                ],
+                "properties": {
+                    "username": {
+                        "description": "User's username",
+                        "type": "string"
+                    },
+                    "password": {
+                        "description": "User's password",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "StoreCategoryRequest": {
                 "title": "Store Category Request",
                 "description": "Store Category Request model",
@@ -489,6 +2974,251 @@
                     "images": {
                         "description": "Images of the category",
                         "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreCouponRequest": {
+                "title": "StoreCouponRequest",
+                "description": "Store Coupon Request",
+                "required": [
+                    "name",
+                    "code",
+                    "value"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Summer Sale"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "SUMMER20"
+                    },
+                    "value": {
+                        "type": "decimal",
+                        "example": 20.5
+                    }
+                },
+                "type": "object"
+            },
+            "StoreEmployeeRequest": {
+                "title": "StoreEmployeeRequest",
+                "description": "Store Employee Request",
+                "required": [
+                    "name",
+                    "phone_no",
+                    "role_id",
+                    "address",
+                    "username",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "phone_no": {
+                        "type": "string",
+                        "example": "1234567890"
+                    },
+                    "role_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Main St, City"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "secret"
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "secret"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreItemRequest": {
+                "title": "StoreItemRequest",
+                "description": "Store Item Request",
+                "required": [
+                    "name",
+                    "image",
+                    "price",
+                    "category_id",
+                    "cogs",
+                    "qty"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Product Name"
+                    },
+                    "image": {
+                        "type": "string",
+                        "example": "image-url.jpg"
+                    },
+                    "image_file": {
+                        "type": "file",
+                        "format": "binary"
+                    },
+                    "price": {
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "category_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "cogs": {
+                        "type": "string",
+                        "example": "Cost of goods sold"
+                    },
+                    "qty": {
+                        "type": "integer",
+                        "example": 10
+                    }
+                },
+                "type": "object"
+            },
+            "StoreItemStockRequest": {
+                "title": "StoreItemStockRequest",
+                "description": "Store Item Stock Request",
+                "required": [
+                    "cogs",
+                    "qty"
+                ],
+                "properties": {
+                    "cogs": {
+                        "type": "string",
+                        "example": "Cost of goods sold"
+                    },
+                    "qty": {
+                        "type": "integer",
+                        "example": 10
+                    }
+                },
+                "type": "object"
+            },
+            "StoreMemberRequest": {
+                "title": "StoreMemberRequest",
+                "description": "Store member request body data",
+                "required": [
+                    "name",
+                    "phone_no"
+                ],
+                "type": "object"
+            },
+            "StoreRoleRequest": {
+                "required": [
+                    "name",
+                    "basic_salary",
+                    "commission_percentage"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 86
+                    },
+                    "basic_salary": {
+                        "type": "string"
+                    },
+                    "commission_percentage": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreSalesRequest": {
+                "title": "StoreSalesRequest",
+                "description": "Store Sales Request Schema",
+                "required": [
+                    "status",
+                    "sub_total",
+                    "total",
+                    "cart"
+                ],
+                "properties": {
+                    "member_id": {
+                        "description": "Member ID (optional)",
+                        "type": "string",
+                        "maxLength": 86
+                    },
+                    "employee_id": {
+                        "description": "Employee ID (optional)",
+                        "type": "string",
+                        "maxLength": 86
+                    },
+                    "tax": {
+                        "description": "Tax amount",
+                        "type": "string"
+                    },
+                    "discount": {
+                        "description": "Discount amount",
+                        "type": "string"
+                    },
+                    "card_no": {
+                        "description": "Card number (optional)",
+                        "type": "string"
+                    },
+                    "coupon_id": {
+                        "description": "Coupon ID (optional)",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Status of the sales (required)",
+                        "type": "string"
+                    },
+                    "sub_total": {
+                        "description": "Subtotal amount (required)",
+                        "type": "string"
+                    },
+                    "total": {
+                        "description": "Total amount (required)",
+                        "type": "string"
+                    },
+                    "coupon": {
+                        "description": "Coupon (optional)",
+                        "type": "string"
+                    },
+                    "use_point": {
+                        "description": "Use point (optional)",
+                        "type": "string"
+                    },
+                    "cart": {
+                        "description": "Cart items (required)",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "item_id": {
+                                    "description": "Item ID",
+                                    "type": "string"
+                                },
+                                "qty": {
+                                    "description": "Quantity",
+                                    "type": "string"
+                                },
+                                "price": {
+                                    "description": "Price",
+                                    "type": "string"
+                                },
+                                "sub_total": {
+                                    "description": "Subtotal for the item",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -510,6 +3240,141 @@
                         "type": "string"
                     }
                 },
+                "type": "object"
+            },
+            "UpdateCouponRequest": {
+                "title": "UpdateCouponRequest",
+                "description": "Update Coupon Request",
+                "required": [
+                    "name",
+                    "code",
+                    "value"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Summer Sale"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "SUMMER20"
+                    },
+                    "value": {
+                        "type": "decimal",
+                        "example": 20.5
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateEmployeeRequest": {
+                "title": "Update Employee Request",
+                "description": "Update Employee request body data",
+                "required": [
+                    "name",
+                    "phone_no",
+                    "role_id",
+                    "address"
+                ],
+                "properties": {
+                    "name": {
+                        "title": "Name",
+                        "description": "Name of the employee",
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "phone_no": {
+                        "title": "Phone Number",
+                        "description": "Phone number of the employee",
+                        "type": "string",
+                        "example": "1234567890"
+                    },
+                    "role_id": {
+                        "title": "Role ID",
+                        "description": "Role ID of the employee",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "address": {
+                        "title": "Address",
+                        "description": "Address of the employee",
+                        "type": "string",
+                        "example": "123 Main St, Anytown, USA"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateItemRequest": {
+                "title": "UpdateItemRequest",
+                "description": "Update Item Request Schema",
+                "required": [
+                    "name",
+                    "image",
+                    "price"
+                ],
+                "type": "object"
+            },
+            "UpdateItemStockRequest": {
+                "title": "UpdateItemStockRequest",
+                "description": "Update Item Stock Request Schema",
+                "required": [
+                    "item_id",
+                    "cogs",
+                    "qty"
+                ],
+                "properties": {
+                    "item_id": {
+                        "description": "Item ID (required)",
+                        "type": "integer"
+                    },
+                    "cogs": {
+                        "description": "Cost of Goods Sold (required)",
+                        "type": "string"
+                    },
+                    "qty": {
+                        "description": "Quantity (required)",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateMemberRequest": {
+                "title": "Update Member Request",
+                "required": [
+                    "name",
+                    "phone_no"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "Member's name",
+                        "type": "string",
+                        "maxLength": 86
+                    },
+                    "phone_no": {
+                        "description": "Member's phone number",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateRoleRequest": {
+                "title": "Update Role Request",
+                "description": "Update Role request body data",
+                "required": [
+                    "name",
+                    "basic_salary",
+                    "commission_percentage"
+                ],
+                "type": "object"
+            },
+            "UpdateSalesRequest": {
+                "title": "UpdateSalesRequest",
+                "description": "Update sales request body",
+                "required": [
+                    "status",
+                    "sub_total",
+                    "total",
+                    "cart"
+                ],
                 "type": "object"
             },
             "Category": {
@@ -548,7 +3413,522 @@
                     }
                 },
                 "type": "object"
+            },
+            "Coupon": {
+                "title": "Coupon",
+                "description": "Coupon model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "e602c7b7-0e3d-4d45-b9e7-7f1f4a8845b1"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Summer Sale"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "SUMMER20"
+                    },
+                    "value": {
+                        "type": "decimal",
+                        "example": 20.5
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_by": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "updated_by": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "Employee": {
+                "title": "Employee",
+                "description": "Employee model",
+                "xml": {
+                    "name": "Employee"
+                }
+            },
+            "EmployeeSalary": {
+                "title": "EmployeeSalary",
+                "description": "Employee Salary model",
+                "properties": {
+                    "employee_id": {
+                        "description": "ID of the employee",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "month_period": {
+                        "description": "Month of the salary period",
+                        "type": "integer",
+                        "example": 7
+                    },
+                    "year_period": {
+                        "description": "Year of the salary period",
+                        "type": "integer",
+                        "example": 2024
+                    },
+                    "basic_salary": {
+                        "description": "Basic salary of the employee",
+                        "type": "number",
+                        "format": "float",
+                        "example": 50000
+                    },
+                    "sales_commission": {
+                        "description": "Sales commission of the employee",
+                        "type": "number",
+                        "format": "float",
+                        "example": 5000
+                    },
+                    "total_salary": {
+                        "description": "Total salary of the employee",
+                        "type": "number",
+                        "format": "float",
+                        "example": 55000
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "EmployeeSalary"
+                }
+            },
+            "EmployeeSalesCommissionLog": {
+                "title": "Employee Sales Commission Log",
+                "required": [
+                    "employee_id",
+                    "description",
+                    "value",
+                    "type"
+                ],
+                "properties": {
+                    "employee": {
+                        "$ref": "#/components/schemas/Employee"
+                    },
+                    "employee_id": {
+                        "description": "The ID of the employee",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "description": {
+                        "description": "The description of the sales commission log",
+                        "type": "string",
+                        "example": "Bonus for exceeding sales target"
+                    },
+                    "value": {
+                        "description": "The value of the sales commission log",
+                        "type": "number",
+                        "format": "double",
+                        "example": "500.00"
+                    },
+                    "type": {
+                        "description": "The type of the sales commission log",
+                        "type": "string",
+                        "example": "Bonus"
+                    }
+                },
+                "type": "object"
+            },
+            "Item": {
+                "title": "Item",
+                "description": "Item model",
+                "properties": {
+                    "id": {
+                        "description": "Item ID",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "uuid": {
+                        "description": "UUID of the item",
+                        "type": "string",
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "name": {
+                        "description": "Name of the item",
+                        "type": "string",
+                        "example": "Sample Item"
+                    },
+                    "image": {
+                        "description": "URL to the image of the item",
+                        "type": "string",
+                        "example": "http://example.com/item.jpg"
+                    },
+                    "category_id": {
+                        "description": "Category ID of the item",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "price": {
+                        "description": "Price of the item",
+                        "type": "number",
+                        "format": "decimal",
+                        "example": "19.99"
+                    },
+                    "created_at": {
+                        "description": "Date and time when the item was created",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-03 12:00:00"
+                    },
+                    "updated_at": {
+                        "description": "Date and time when the item was last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-03 12:30:00"
+                    },
+                    "deleted_at": {
+                        "description": "Date and time when the item was soft deleted",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-03 12:45:00"
+                    },
+                    "stock_count": {
+                        "description": "Computed attribute: Total stock count of the item",
+                        "type": "integer",
+                        "example": "100"
+                    }
+                },
+                "type": "object"
+            },
+            "ItemStock": {
+                "title": "ItemStock",
+                "required": [
+                    "item_id",
+                    "cogs",
+                    "qty"
+                ]
+            },
+            "ItemStockFlow": {
+                "title": "ItemStockFlow",
+                "description": "ItemStockFlow model",
+                "properties": {
+                    "id": {
+                        "description": "ItemStockFlow ID",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "item_stock_id": {
+                        "description": "ID of the item stock associated with this flow",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "qty": {
+                        "description": "Quantity of items involved in the flow",
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "source_type": {
+                        "description": "Type of the source model that initiated the stock flow (polymorphic)",
+                        "type": "string",
+                        "example": "App\\Models\\Order"
+                    },
+                    "source_id": {
+                        "description": "ID of the source model instance that initiated the stock flow (polymorphic)",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "created_at": {
+                        "description": "Date and time when the stock flow was created",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-03 12:00:00"
+                    },
+                    "updated_at": {
+                        "description": "Date and time when the stock flow was last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-03 12:30:00"
+                    }
+                },
+                "type": "object"
+            },
+            "ItemStockOperation": {
+                "title": "ItemStockOperation",
+                "description": "Item Stock Operation Model",
+                "properties": {
+                    "item_id": {
+                        "description": "The ID of the item",
+                        "type": "integer"
+                    },
+                    "qty": {
+                        "description": "The quantity of the item",
+                        "type": "integer"
+                    },
+                    "type": {
+                        "description": "The type of operation (e.g., 'add', 'subtract')",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Member": {
+                "title": "Member",
+                "description": "Member model",
+                "properties": {
+                    "id": {
+                        "description": "ID of the member",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "name": {
+                        "description": "Name of the member",
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "phone_no": {
+                        "description": "Phone number of the member",
+                        "type": "string",
+                        "example": "123-456-7890"
+                    },
+                    "code": {
+                        "description": "Generated code for the member",
+                        "type": "string",
+                        "example": "MEM123"
+                    },
+                    "point": {
+                        "description": "Points of the member",
+                        "type": "integer",
+                        "example": "100"
+                    },
+                    "uuid": {
+                        "description": "UUID of the member",
+                        "type": "string",
+                        "example": "a1b2c3d4-e5f6-7890"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the member",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "updated_by": {
+                        "description": "ID of the user who updated the member",
+                        "type": "integer",
+                        "example": "1"
+                    }
+                },
+                "type": "object"
+            },
+            "Role": {
+                "title": "Role",
+                "description": "Role model",
+                "properties": {
+                    "id": {
+                        "description": "The ID of the role",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Name of the role",
+                        "type": "string"
+                    },
+                    "basic_salary": {
+                        "description": "Basic salary for the role",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "commission_percentage": {
+                        "description": "Commission percentage for the role",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "uuid": {
+                        "description": "UUID of the role",
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "description": "User ID who created the role",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "updated_by": {
+                        "description": "User ID who last updated the role",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "created_at": {
+                        "description": "Creation timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Last update timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deleted_at": {
+                        "description": "Soft delete timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Sales": {
+                "title": "Sales",
+                "description": "Sales model",
+                "properties": {
+                    "member_id": {
+                        "description": "The attributes that are mass assignable.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "employee_id": {
+                        "description": "string>",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "discount": {
+                        "description": "string>",
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.1
+                    },
+                    "status": {
+                        "description": "string>",
+                        "type": "string",
+                        "example": "pending"
+                    },
+                    "tax": {
+                        "description": "string>",
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.2
+                    },
+                    "sub_total": {
+                        "description": "string>",
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "total": {
+                        "description": "string>",
+                        "type": "number",
+                        "format": "float",
+                        "example": 120
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "Sales"
+                }
+            },
+            "SalesItem": {
+                "title": "SalesItem",
+                "description": "SalesItem model",
+                "properties": {
+                    "id": {
+                        "description": "ID of the sales item",
+                        "type": "integer"
+                    },
+                    "qty": {
+                        "description": "Quantity of the item",
+                        "type": "integer"
+                    },
+                    "price": {
+                        "description": "Price per unit of the item",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "sales_id": {
+                        "description": "ID of the sales order",
+                        "type": "integer"
+                    },
+                    "item_id": {
+                        "description": "ID of the item",
+                        "type": "integer"
+                    },
+                    "sub_total": {
+                        "description": "Subtotal of the sales item",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "uuid": {
+                        "description": "UUID of the sales item",
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the sales item",
+                        "type": "integer"
+                    },
+                    "updated_by": {
+                        "description": "ID of the user who last updated the sales item",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SalesPaymentWithCard": {
+                "required": [
+                    "card_no"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "card_no": {
+                        "type": "string"
+                    },
+                    "uuid": {
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "SalesWithCoupon": {
+                "title": "SalesWithCoupon",
+                "description": "Sales with coupon model",
+                "properties": {
+                    "sales": {
+                        "$ref": "#/components/schemas/Sales"
+                    },
+                    "coupon_id": {
+                        "description": "The attributes that are mass assignable.",
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "SalesWithCoupon"
+                }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Coupons",
+            "description": "APIs for managing coupons"
+        }
+    ]
 }

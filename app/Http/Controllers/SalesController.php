@@ -15,112 +15,229 @@ class SalesController extends Controller
 {
     private SalesService $salesService;
 
-    /**
-     * Create a new class instance.
-     */
+
     public function __construct(SalesService $salesService)
     {
         $this->salesService = $salesService;
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/sales",
+     *     summary="List sales",
+     *     description="Get a paginated list of sales",
+     *     operationId="getSales",
+     *     tags={"Sales"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Number of items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search term",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sales fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Sales")),
+     *             @OA\Property(property="message", type="string", example="Sales fetched successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to fetch sales. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-
-        // Start query builder for Sales model
         $query = Sales::query();
-
-        // Apply search filter if 'search' parameter is provided
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('name', 'LIKE', "%{$search}%");
         }
-
-        // Paginate the query results
         $query = $query->paginate($perPage);
-
-        // Return success response with paginated SalesResource collection
         return APIResponse::success(SalesResource::collection($query), 'Sales fetched successfully', 200);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreSalesRequest  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/sales",
+     *     summary="Create sales",
+     *     description="Create a new sales record",
+     *     operationId="createSales",
+     *     tags={"Sales"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StoreSalesRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sales created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Sales"),
+     *             @OA\Property(property="message", type="string", example="Sales created successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to create sales. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function store(StoreSalesRequest $request)
     {
-        // Validate incoming request data
         $param = $request->validated();
-
         try {
-            // Create a new sales record using SalesService
             $data = $this->salesService->create($param);
-            // Return success response with newly created SalesResource
             return APIResponse::success(new SalesResource($data), 'Sales created successfully', 200);
         } catch (Exception $ex) {
-            // Return error response if any exception occurs
             return APIResponse::error($ex->getMessage(), 500);
         }
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Sales  $Sales
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/sales/{id}",
+     *     summary="Show sales",
+     *     description="Get details of a specific sales record",
+     *     operationId="showSales",
+     *     tags={"Sales"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Sales ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sales fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Sales"),
+     *             @OA\Property(property="message", type="string", example="Sales fetched successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to fetch sales. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function show(Sales $Sales)
     {
-        // Return success response with specific SalesResource data
         return APIResponse::success(new SalesResource($Sales), 'Sales fetched successfully', 200);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateSalesRequest  $request
-     * @param  \App\Models\Sales  $sale
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *     path="/api/sales/{id}",
+     *     summary="Update sales",
+     *     description="Update an existing sales record",
+     *     operationId="updateSales",
+     *     tags={"Sales"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Sales ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpdateSalesRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sales updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Sales"),
+     *             @OA\Property(property="message", type="string", example="Sales updated successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to update sales. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function update(UpdateSalesRequest $request, Sales $sale)
     {
-        // Validate incoming request data
         $param = $request->validated();
-
         try {
-            // Update the sales record using SalesService
             $this->salesService->update($sale, $param);
-            // Return success response with updated SalesResource data
             return APIResponse::success(new SalesResource($sale), 'Sales updated successfully', 200);
         } catch (Exception $ex) {
-            // Return error response if any exception occurs
             return APIResponse::error($ex->getMessage(), 500);
         }
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Sales  $sale
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/sales/{id}",
+     *     summary="Delete sales",
+     *     description="Delete a sales record",
+     *     operationId="deleteSales",
+     *     tags={"Sales"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Sales ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sales deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Sales deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to delete sales. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function destroy(Sales $sale)
     {
         try {
-            // Delete the sales record using SalesService
             $this->salesService->destroy($sale);
-            // Return success response upon successful deletion
             return APIResponse::success(null, 'Sales deleted successfully', 200);
         } catch (Exception $ex) {
-            // Return error response if any exception occurs
             return APIResponse::error($ex->getMessage(), 500);
         }
     }

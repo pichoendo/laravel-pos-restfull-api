@@ -5,7 +5,19 @@ namespace App\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 
+/**
+ * @OA\Schema(
+ *     schema="ItemStock",
+ *     title="ItemStock",
+ *     required={
+ *         "item_id",
+ *         "cogs",
+ *         "qty"
+ *     }
+ * )
+ */
 class ItemStock extends Model
 {
     use HasFactory;

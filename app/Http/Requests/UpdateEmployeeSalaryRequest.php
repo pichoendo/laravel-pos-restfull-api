@@ -3,9 +3,22 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
+use GoldSpecDigital\ObjectOrientedOAS\OpenApi;
 
 class UpdateEmployeeSalaryRequest extends FormRequest
 {
+    /**
+     * @OA\Schema(
+     *      schema="UpdateEmployeeSalaryRequest",
+     *      type="object",
+     *      @OA\Property(property="employee_id", type="string"),
+     *      @OA\Property(property="basic_salary", type="string"),
+     *      @OA\Property(property="sales_commision", type="string"),
+     *      @OA\Property(property="total_salary", type="string"),
+     * )
+     */
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -29,3 +42,4 @@ class UpdateEmployeeSalaryRequest extends FormRequest
         ];
     }
 }
+

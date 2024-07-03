@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-
     private RoleService $roleService;
+
 
     public function __construct(RoleService $roleService)
     {
@@ -22,104 +22,222 @@ class RoleController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/roles",
+     *     summary="List roles",
+     *     description="Get a paginated list of roles",
+     *     operationId="getRoles",
+     *     tags={"Roles"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Number of items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search term",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Roles fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Role")),
+     *             @OA\Property(property="message", type="string", example="Roles fetched successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to fetch roles. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-
-        // Query roles from the database
         $query = Role::query();
-
-        // Apply search filter if 'search' parameter is provided
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('name', 'LIKE', "%{$search}%");
         }
-
-        // Paginate the query results
         $query = $query->paginate($perPage);
-
-        // Return success response with paginated roles data
         return APIResponse::success(RoleResource::collection($query), 'Roles fetched successfully', 200);
     }
 
-
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreRoleRequest  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/roles",
+     *     summary="Create role",
+     *     description="Create a new role",
+     *     operationId="createRole",
+     *     tags={"Roles"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StoreRoleRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Role created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Role"),
+     *             @OA\Property(property="message", type="string", example="Role created successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to create role. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function store(StoreRoleRequest $request)
     {
-        // Validate incoming request data
         $param = $request->validated();
-
         try {
-            // Create a new role using RoleService
             $data = $this->roleService->create($param);
-            // Return success response with newly created role data
             return APIResponse::success(new RoleResource($data), 'Role created successfully', 200);
         } catch (Exception $ex) {
-            // Return error response if any exception occurs
             return APIResponse::error($ex->getMessage(), 500);
         }
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/roles/{id}",
+     *     summary="Show role",
+     *     description="Get details of a specific role",
+     *     operationId="showRole",
+     *     tags={"Roles"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Role ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Role fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Role"),
+     *             @OA\Property(property="message", type="string", example="Role fetched successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to fetch role. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function show(Role $role)
     {
-        // Return success response with specific role data
         return APIResponse::success(new RoleResource($role), 'Role fetched successfully', 200);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateRoleRequest  $request
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *     path="/api/roles/{id}",
+     *     summary="Update role",
+     *     description="Update an existing role",
+     *     operationId="updateRole",
+     *     tags={"Roles"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Role ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpdateRoleRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Role updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Role"),
+     *             @OA\Property(property="message", type="string", example="Role updated successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to update role. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        // Validate incoming request data
         $param = $request->validated();
-
         try {
-            // Update the role using RoleService
             $data = $this->roleService->update($role, $param);
-            // Return success response with updated role data
             return APIResponse::success(new RoleResource($data), 'Role updated successfully', 200);
         } catch (Exception $ex) {
-            // Return error response if any exception occurs
             return APIResponse::error($ex->getMessage(), 500);
         }
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/roles/{id}",
+     *     summary="Delete role",
+     *     description="Delete a role",
+     *     operationId="deleteRole",
+     *     tags={"Roles"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Role ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Role deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Role deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to delete role. Please try again later.")
+     *         )
+     *     )
+     * )
      */
     public function destroy(Role $role)
     {
         try {
-            // Delete the role using RoleService
             $this->roleService->destroy($role);
-            // Return success response upon successful deletion
             return APIResponse::success(null, 'Role deleted successfully', 200);
         } catch (Exception $ex) {
-            // Return error response if any exception occurs
             return APIResponse::error($ex->getMessage(), 500);
         }
     }

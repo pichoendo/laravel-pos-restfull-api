@@ -8,6 +8,77 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema(
+ *      schema="Item",
+ *      title="Item",
+ *      description="Item model",
+ *      @OA\Property(
+ *          property="id",
+ *          type="integer",
+ *          description="Item ID",
+ *          example="1"
+ *      ),
+ *      @OA\Property(
+ *          property="uuid",
+ *          type="string",
+ *          description="UUID of the item",
+ *          example="123e4567-e89b-12d3-a456-426614174000"
+ *      ),
+ *      @OA\Property(
+ *          property="name",
+ *          type="string",
+ *          description="Name of the item",
+ *          example="Sample Item"
+ *      ),
+ *      @OA\Property(
+ *          property="image",
+ *          type="string",
+ *          description="URL to the image of the item",
+ *          example="http://example.com/item.jpg"
+ *      ),
+ *      @OA\Property(
+ *          property="category_id",
+ *          type="integer",
+ *          description="Category ID of the item",
+ *          example="1"
+ *      ),
+ *      @OA\Property(
+ *          property="price",
+ *          type="number",
+ *          format="decimal",
+ *          description="Price of the item",
+ *          example="19.99"
+ *      ),
+ *      @OA\Property(
+ *          property="created_at",
+ *          type="string",
+ *          format="date-time",
+ *          description="Date and time when the item was created",
+ *          example="2024-07-03 12:00:00"
+ *      ),
+ *      @OA\Property(
+ *          property="updated_at",
+ *          type="string",
+ *          format="date-time",
+ *          description="Date and time when the item was last updated",
+ *          example="2024-07-03 12:30:00"
+ *      ),
+ *      @OA\Property(
+ *          property="deleted_at",
+ *          type="string",
+ *          format="date-time",
+ *          description="Date and time when the item was soft deleted",
+ *          example="2024-07-03 12:45:00"
+ *      ),
+ *      @OA\Property(
+ *          property="stock_count",
+ *          type="integer",
+ *          description="Computed attribute: Total stock count of the item",
+ *          example="100"
+ *      )
+ * )
+ */
 class Item extends Model
 {
     use HasFactory, SoftDeletes;

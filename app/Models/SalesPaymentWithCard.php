@@ -6,6 +6,38 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @OA\Schema(
+ *     schema="SalesPaymentWithCard",
+ *     required={"card_no"},
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer"
+ *     ),
+ *     @OA\Property(
+ *         property="card_no",
+ *         type="string"
+ *     ),
+ *     @OA\Property(
+ *         property="uuid",
+ *         type="string"
+ *     ),
+ *     @OA\Property(
+ *         property="created_by",
+ *         type="integer"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time"
+ *     )
+ * )
+ */
 class SalesPaymentWithCard extends Model
 {
     use HasFactory;

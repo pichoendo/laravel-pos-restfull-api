@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema(
+ *     title="Sales",
+ *     description="Sales model",
+ *     @OA\Xml(
+ *         name="Sales"
+ *     )
+ * )
+ */
 class Sales extends Model
 {
     use HasFactory, SoftDeletes;
@@ -16,7 +25,15 @@ class Sales extends Model
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
+     * @OA\Property(property="member_id", type="integer", example=1)
+     * @OA\Property(property="employee_id", type="integer", example=1)
+     * @OA\Property(property="discount", type="number", format="float", example=0.1)
+     * @OA\Property(property="status", type="string", example="pending")
+     * @OA\Property(property="tax", type="number", format="float", example=0.2)
+     * @OA\Property(property="sub_total", type="number", format="float", example=100.00)
+     * @OA\Property(property="total", type="number", format="float", example=120.00)
      */
+
     protected $fillable = [
         'member_id',
         'employee_id',

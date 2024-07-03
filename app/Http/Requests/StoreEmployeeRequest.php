@@ -4,6 +4,21 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     schema="StoreEmployeeRequest",
+ *     title="StoreEmployeeRequest",
+ *     description="Store Employee Request",
+ *     required={"name", "phone_no", "role_id", "address", "username", "password", "password_confirmation"},
+ *     @OA\Property(property="name", type="string", example="John Doe"),
+ *     @OA\Property(property="phone_no", type="string", example="1234567890"),
+ *     @OA\Property(property="role_id", type="integer", example=1),
+ *     @OA\Property(property="address", type="string", example="123 Main St, City"),
+ *     @OA\Property(property="username", type="string", example="johndoe"),
+ *     @OA\Property(property="password", type="string", format="password", example="secret"),
+ *     @OA\Property(property="password_confirmation", type="string", format="password", example="secret"),
+ * )
+ */
 class StoreEmployeeRequest extends FormRequest
 {
     /**

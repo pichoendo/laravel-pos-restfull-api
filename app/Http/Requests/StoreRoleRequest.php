@@ -3,7 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+/**
+ * @OA\Schema(
+ *     schema="StoreRoleRequest",
+ *     required={"name", "basic_salary", "commission_percentage"},
+ *     @OA\Property(property="name", type="string", maxLength=86),
+ *     @OA\Property(property="basic_salary", type="string"),
+ *     @OA\Property(property="commission_percentage", type="string")
+ * )
+ */
 class StoreRoleRequest extends FormRequest
 {
     /**

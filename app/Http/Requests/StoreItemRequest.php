@@ -4,6 +4,21 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     schema="StoreItemRequest",
+ *     title="StoreItemRequest",
+ *     description="Store Item Request",
+ *     required={"name", "image", "price", "category_id", "cogs", "qty"},
+ *     @OA\Property(property="name", type="string", example="Product Name"),
+ *     @OA\Property(property="image", type="string", example="image-url.jpg"),
+ *     @OA\Property(property="image_file", type="file", format="binary"),
+ *     @OA\Property(property="price", type="integer", example=100),
+ *     @OA\Property(property="category_id", type="integer", example=1),
+ *     @OA\Property(property="cogs", type="string", example="Cost of goods sold"),
+ *     @OA\Property(property="qty", type="integer", example=10),
+ * )
+ */
 class StoreItemRequest extends FormRequest
 {
     /**

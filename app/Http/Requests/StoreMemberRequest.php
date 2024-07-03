@@ -4,10 +4,20 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="StoreMemberRequest",
+ *     description="Store member request body data",
+ *     type="object",
+ *     required={"name", "phone_no"}
+ * )
+ */
 class StoreMemberRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -26,4 +36,20 @@ class StoreMemberRequest extends FormRequest
             'phone_no'  => 'required|unique:members,phone_no,NULL,id,deleted_at,NULL',
         ];
     }
+
+    /**
+     * @OA\Property(
+     *     property="name",
+     *     type="string",
+     *     description="Name of the member",
+     *     example="John Doe"
+     * )
+     *
+     * @OA\Property(
+     *     property="phone_no",
+     *     type="string",
+     *     description="Phone number of the member",
+     *     example="+123456789"
+     * )
+     */
 }

@@ -11,6 +11,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @OA\Schema(
+ *     title="Employee",
+ *     description="Employee model",
+ *     @OA\Xml(
+ *         name="Employee"
+ *     )
+ * )
+ */
 class Employee extends Model
 {
     use HasFactory, Notifiable, HasApiTokens, Authenticatable, SoftDeletes;
@@ -19,17 +28,14 @@ class Employee extends Model
      * The attributes that are mass assignable.
      *
      * @var array
+     * @OA\Property(property="phone_no", type="string", example="1234567890"),
+     * @OA\Property(property="username", type="string", example="john_doe"),
+     * @OA\Property(property="password", type="string", format="password", example="password"),
+     * @OA\Property(property="commission_sales", type="number", format="float", example="0.15"),
+     * @OA\Property(property="name", type="string", example="John Doe"),
+     * @OA\Property(property="role_id", type="integer", example="1"),
+     * @OA\Property(property="registered_at", type="string", format="date-time", example="2023-07-03T04:41:42+00:00"),
      */
-    protected $fillable = [
-        'phone_no',
-        'username',
-        'password',
-        'commission_sales',
-        'name',
-        'role_id',
-        'registered_at',
-    ];
-
     /**
      * The attributes that should be hidden for serialization.
      *

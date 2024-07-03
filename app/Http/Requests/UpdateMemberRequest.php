@@ -4,9 +4,27 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     schema="UpdateMemberRequest",
+ *     title="Update Member Request",
+ *     required={"name", "phone_no"},
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         maxLength=86,
+ *         description="Member's name"
+ *     ),
+ *     @OA\Property(
+ *         property="phone_no",
+ *         type="string",
+ *         description="Member's phone number"
+ *     )
+ * )
+ */
 class UpdateMemberRequest extends FormRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool

@@ -4,6 +4,17 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     schema="UpdateCouponRequest",
+ *     title="UpdateCouponRequest",
+ *     description="Update Coupon Request",
+ *     required={"name", "code", "value"},
+ *     @OA\Property(property="name", type="string", example="Summer Sale"),
+ *     @OA\Property(property="code", type="string", example="SUMMER20"),
+ *     @OA\Property(property="value", type="decimal", example=20.5),
+ * )
+ */
 class UpdateCouponRequest extends FormRequest
 {
     /**

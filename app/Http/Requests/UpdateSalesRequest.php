@@ -3,7 +3,14 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+/**
+ * @OA\Schema(
+ *      title="UpdateSalesRequest",
+ *      description="Update sales request body",
+ *      type="object",
+ *      required={"status", "sub_total", "total", "cart"},
+ * )
+ */
 class UpdateSalesRequest extends FormRequest
 {
     /**

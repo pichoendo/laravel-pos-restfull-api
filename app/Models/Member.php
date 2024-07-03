@@ -8,6 +8,60 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema(
+ *     title="Member",
+ *     description="Member model",
+ *     @OA\Property(
+ *         property="id",
+ *         description="ID of the member",
+ *         type="integer",
+ *         example="1"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         description="Name of the member",
+ *         type="string",
+ *         example="John Doe"
+ *     ),
+ *     @OA\Property(
+ *         property="phone_no",
+ *         description="Phone number of the member",
+ *         type="string",
+ *         example="123-456-7890"
+ *     ),
+ *     @OA\Property(
+ *         property="code",
+ *         description="Generated code for the member",
+ *         type="string",
+ *         example="MEM123"
+ *     ),
+ *     @OA\Property(
+ *         property="point",
+ *         description="Points of the member",
+ *         type="integer",
+ *         example="100"
+ *     ),
+ *     @OA\Property(
+ *         property="uuid",
+ *         description="UUID of the member",
+ *         type="string",
+ *         example="a1b2c3d4-e5f6-7890"
+ *     ),
+ *     @OA\Property(
+ *         property="created_by",
+ *         description="ID of the user who created the member",
+ *         type="integer",
+ *         example="1"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_by",
+ *         description="ID of the user who updated the member",
+ *         type="integer",
+ *         example="1"
+ *     ),
+ * )
+ */
 class Member extends Model
 {
     use HasFactory, SoftDeletes;
