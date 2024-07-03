@@ -16,9 +16,9 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('name');
-            $table->string('image');
             $table->double('price');
-            $table->foreignIdFor(Category::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->foreign('updated_by')->references('id')->on('employees');
             $table->unsignedBigInteger('created_by')->nullable();

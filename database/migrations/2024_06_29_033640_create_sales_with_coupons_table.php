@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('sales_with_coupons', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignIdFor(Sales::class)->nullable()->cascadeOnDelete();
-            $table->foreignIdFor(Coupon::class)->nullable()->cascadeOnDelete();
-            
+            $table->unsignedBigInteger('sales_id')->nullable();
+            $table->foreign('sales_id')->references('id')->on('sales');
+            $table->unsignedBigInteger('coupon_id')->nullable();
+            $table->foreign('coupon_id')->references('id')->on('coupons');
             $table->timestamps();
         });
     }

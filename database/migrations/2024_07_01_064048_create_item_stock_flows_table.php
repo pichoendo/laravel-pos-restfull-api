@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->enum('type', ['add', 'deduct'])->default('add')->nullable(false);
             $table->nullableMorphs('source');
-            $table->foreignIdFor(ItemStock::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('item_stock_id')->nullable();
+            $table->foreign('item_stock_id')->references('id')->on('item_stocks');
             $table->double('qty');
             $table->timestamps();
         });

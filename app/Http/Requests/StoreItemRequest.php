@@ -38,8 +38,7 @@ class StoreItemRequest extends FormRequest
     {
         return [
             'name'  => 'required|string|max:86',
-            'image'  => 'required|string|max:18',
-            'image_file'  => 'file|mimes:jpg,png',
+            'image_file'  => 'file|mimes:jpg,png|max:2048',
             'price' => 'required|integer',
             'category_id' => 'required|integer',
             "cogs" => 'required',

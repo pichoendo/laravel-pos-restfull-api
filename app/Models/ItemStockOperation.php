@@ -67,7 +67,7 @@ class ItemStockOperation extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
-    public function stockFlow()
+    public function stock_flow()
     {
         return $this->morphOne(ItemStockFlow::class, 'source');
     }

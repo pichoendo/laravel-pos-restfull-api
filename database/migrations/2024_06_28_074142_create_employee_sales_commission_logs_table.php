@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('employee_sales_commission_logs', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignIdFor(Employee::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->foreign('employee_id')->references('id')->on('employees');
             $table->nullableMorphs('source');
             $table->string('description');
             $table->double('value');

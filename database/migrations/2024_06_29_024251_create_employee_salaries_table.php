@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('employee_salaries', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignIdFor(Employee::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->foreign('employee_id')->references('id')->on('employees');
             $table->string('month_period');
             $table->string('year_period');
             $table->double('basic_salary');

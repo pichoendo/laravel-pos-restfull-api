@@ -92,7 +92,7 @@ class Item extends Model
      */
     protected $fillable = [
         'name',
-        'image',
+        'image_file_id',
         'category_id',
         'price',
     ];
@@ -145,6 +145,16 @@ class Item extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Get the category that owns the item.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function imageFile()
+    {
+        return $this->belongsTo(ImageFile::class);
     }
 
     /**

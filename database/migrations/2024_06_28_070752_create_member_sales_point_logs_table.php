@@ -19,9 +19,12 @@ return new class extends Migration
             $table->string('description');
             $table->double('point');
             $table->integer('type');
-            $table->foreignIdFor(Sales::class)->nullable()->cascadeOnDelete();
-            $table->foreignIdFor(Member::class)->nullable()->cascadeOnDelete();
-            $table->foreignId('created_by')->nullable()->references('id')->on('employees')->cascadeOnDelete();
+            $table->unsignedBigInteger('sales_id')->nullable();
+            $table->foreign('sales_id')->references('id')->on('sales');
+            $table->unsignedBigInteger('member_id')->nullable();
+            $table->foreign('member_id')->references('id')->on('members');
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreign('created_by')->references('id')->on('employees');;
             $table->timestamps();
         });
     }

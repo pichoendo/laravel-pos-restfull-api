@@ -17,8 +17,10 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('code');
-            $table->foreignIdFor(Employee::class)->nullable()->cascadeOnDelete();
-            $table->foreignIdFor(Member::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('employee_by')->nullable();
+            $table->foreign('employee_by')->references('id')->on('employees');
+            $table->unsignedBigInteger('member_by')->nullable();
+            $table->foreign('member_by')->references('id')->on('members');
             $table->double('discount');
             $table->double('tax');
             $table->double('sub_total');

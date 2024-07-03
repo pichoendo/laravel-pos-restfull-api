@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\DB;
 class ItemService
 {
     private ItemStockService $itemStockService;
+    private FileService $fileService;
 
-    public function __construct(ItemStockService $itemStockService)
+    public function __construct(ItemStockService $itemStockService, FileService $fileService)
     {
+        $this->fileService = $fileService;
         $this->itemStockService = $itemStockService;
     }
 
@@ -23,7 +25,16 @@ class ItemService
     public function create(array $param): Item
     {
         return DB::transaction(function () use ($param) {
+
             $item = Item::create($param);
+            if (isset($param['image_file'])) {
+                $file = $this->fileService->upload($param['image_file']);
+                if ($file) {
+                    $file->item()->save($item);
+             
+                }
+            }
+      
             $this->itemStockService->createStock($item->id, $param['cogs'], $param['qty']);
             return $item;
         });
@@ -39,7 +50,18 @@ class ItemService
     public function update(Item $model, array $param): Item
     {
         return DB::transaction(function () use ($model, $param) {
+
             $model->update($param);
+            if (isset($param['image_file'])) {
+                if (!empty($model->imageFile)) {
+                    $this->fileService->deleteFile($model->imageFile);
+                }
+
+                $file = $this->fileService->upload($param['image_file']);
+                if ($file) {
+                    $model->imageFile()->save($file);
+                }
+            }
             return $model;
         });
     }

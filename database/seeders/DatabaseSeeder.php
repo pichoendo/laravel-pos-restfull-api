@@ -44,7 +44,6 @@ class DatabaseSeeder extends Seeder
 
             $item = Item::create([
                 'name' => 'Asian Food',
-                'image' => "",
                 'category_id' => 1,
                 'price' => 200,
             ]);

@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('item_stock_operations', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['add', 'deduct'])->default('add')->nullable(false);
-            $table->foreignIdFor(Item::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('item_id')->nullable();
+            $table->foreign('item_id')->references('id')->on('items');
             $table->double('qty');
             $table->foreignId('created_by')->nullable()->references('id')->on('employees')->cascadeOnDelete();
             $table->timestamps();

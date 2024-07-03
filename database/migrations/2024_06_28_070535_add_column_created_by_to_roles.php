@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Role;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,22 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->string('name');
-            $table->string('code');
-            $table->string('address')->nullable();
-            $table->string('phone_no')->nullable();
-            $table->string('username')->unique();
-            $table->string('password');
+        Schema::table('roles', function (Blueprint $table) {
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->foreign('updated_by')->references('id')->on('employees');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('employees');;
-            $table->rememberToken();
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -36,6 +24,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees');
+        Schema::table('roles', function (Blueprint $table) {
+            $table->dropForeign(['updated_by']);
+            $table->dropForeign(['created_by']);
+            $table->dropColumn('updated_by');
+            $table->dropColumn('created_by');
+        
+        });
     }
 };

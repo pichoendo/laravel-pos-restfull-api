@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Sales;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales_payment_with_cards', function (Blueprint $table) {
+        Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->unsignedBigInteger('sales_id')->nullable();
-            $table->foreign('sales_id')->references('id')->on('sales');
-            $table->string('card_no');
-            $table->foreignId('created_by')->nullable()->references('id')->on('employees')->cascadeOnDelete();
+            $table->string('name');
+            $table->double('basic_salary');
+            $table->double('commission_percentage');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales_payment_with_cards');
+        Schema::dropIfExists('roles');
     }
 };

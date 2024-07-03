@@ -19,7 +19,8 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->double('cogs');
             $table->double('qty')->nullable()->default(0);
-            $table->foreignIdFor(Item::class)->nullable()->cascadeOnDelete();
+            $table->unsignedBigInteger('item_id')->nullable();
+            $table->foreign('item_id')->references('id')->on('items');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->foreign('updated_by')->references('id')->on('employees');
             $table->unsignedBigInteger('created_by')->nullable();
