@@ -63,14 +63,14 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $query = Role::query();
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'LIKE', "%{$search}%");
+        try {
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', 0);
+            $data = $this->roleService->getData($request->all(), $page, $perPage);
+            return APIResponse::success(RoleResource::collection($data), 'Fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to create category. Please try again later.', 500);
         }
-        $query = $query->paginate($perPage);
-        return APIResponse::success(RoleResource::collection($query), 'Roles fetched successfully', 200);
     }
 
     /**

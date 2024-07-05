@@ -63,19 +63,14 @@ class MemberController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-
-        $query = Member::query();
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
+        try {
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', 0);
+            $data = $this->memberService->getData($request->all(), $page, $perPage);
+            return APIResponse::success(MemberResource::collection($data), 'Fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to create category. Please try again later.', 500);
         }
-
-        $query = $query->paginate($perPage);
-
-        return APIResponse::success(MemberResource::collection($query), 'Members fetched successfully', 200);
     }
 
 
@@ -245,6 +240,170 @@ class MemberController extends Controller
             return APIResponse::success(null, 'Member deleted successfully', 200);
         } catch (Exception $ex) {
             return APIResponse::error($ex->getMessage(), 500);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/members/{member}/sales",
+     *     operationId="getMemberSalesList",
+     *     tags={"Members"},
+     *     summary="Get sales list of a member",
+     *     description="Returns sales list of a specific member.",
+     *     @OA\Parameter(
+     *         name="member",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the member",
+     *         @OA\Schema(
+     *             type="integer",
+     *             format="int64"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number for pagination",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *             format="int64"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="success",
+     *                 type="boolean",
+     *                 example=true
+     *             ),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="data fetch successfully"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/MemberResource")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to fetch member",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="success",
+     *                 type="boolean",
+     *                 example=false
+     *             ),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Failed to fetch member. Please try again later."
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getMemberSalesList(Request $request, Member $member)
+    {
+        $param = $request->all();
+        try {
+            $data = $this->memberService->getSalesList($member, $param);
+            return APIResponse::success(MemberResource::collection($data), 'data fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to fetch member. Please try again later.', 500);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/member/{id}/points",
+     *     operationId="getMemberPointLog",
+     *     tags={"Member"},
+     *     summary="Get member point log",
+     *     description="Returns point log for a specific member",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Member ID",
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data fetched successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/MemberResource")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to fetch member. Please try again later."
+     *     )
+     * )
+     */
+    public function getMemberPointLog(Request $request, Member $member)
+    {
+        $param = $request->all();
+        try {
+            $data = $this->memberService->getMemberPointLog($member, $param);
+            return APIResponse::success(MemberResource::collection($data), 'data fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to fetch member. Please try again later.', 500);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/royal-employee",
+     *     operationId="getRoyalEmployee",
+     *     tags={"Employees"},
+     *     summary="Get list of royal employees",
+     *     description="Returns a list of royal employees.",
+     *     @OA\Parameter(
+     *         name="param",
+     *         in="query",
+     *         description="Optional parameters for filtering employees.",
+     *         required=false,
+     *         @OA\Schema(type="object")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/MemberResource")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to fetch employee",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Failed to fetch employee. Please try again later."
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getRoyalEmployee(Request $request)
+    {
+        $param = $request->all();
+        try {
+            $data = $this->memberService->getListOfRoyalEmployees($param);
+            return APIResponse::success(MemberResource::collection($data), 'data created successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to fetch employee. Please try again later.', 500);
         }
     }
 }

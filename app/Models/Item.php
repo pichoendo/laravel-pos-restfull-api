@@ -168,6 +168,16 @@ class Item extends Model
     }
 
     /**
+     * Get the list of its sales item .
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function item_on_sales()
+    {
+        return $this->hasMany(SalesItem::class);
+    }
+
+    /**
      * Get the computed attribute for stock count of the item.
      *
      * @return int
@@ -175,5 +185,15 @@ class Item extends Model
     public function getStockCountAttribute()
     {
         return $this->item_stocks()->sum('qty');
+    }
+
+     /**
+     * Get the computed attribute for sales count of the item.
+     *
+     * @return int
+     */
+    public function getSalesCountAttribute()
+    {
+        return $this->item_on_sales()->sum('qty');
     }
 }

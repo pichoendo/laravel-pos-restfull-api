@@ -6,6 +6,7 @@ use App\Models\Sales;
 use App\Models\SalesItem;
 use App\Models\SalesPaymentWithCard;
 use App\Models\SalesWithCoupon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class SalesService
@@ -106,6 +107,28 @@ class SalesService
                 }
             }
         }
+    }
+
+    /**
+     * Retrieve paginated sales data based on search parameters.
+     *
+     * @param array $param Array containing search parameters, e.g., ['search' => 'keyword'].
+     * @param int $page Page number for pagination.
+     * @param int $perPage Number of items per page for pagination.
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getData($param, $page, $perPage): LengthAwarePaginator
+    {
+        $query = Sales::query();
+
+        if (isset($param['search'])) {
+            $search = $param['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     /**

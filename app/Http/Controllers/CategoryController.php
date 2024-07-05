@@ -67,18 +67,14 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $query = Category::query();
-
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
+        try {
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', 0);
+            $data = $this->categoryService->getData($request->all(), $page, $perPage);
+            return APIResponse::success(CategoryResource::collection($data), 'Fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to create category. Please try again later.', 500);
         }
-
-        $query = $query->paginate($perPage);
-        return APIResponse::success(CategoryResource::collection($query), 'Fetch successfully', 200);
     }
 
     /**
@@ -157,7 +153,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        return APIResponse::success(new CategoryResource($category), 'Fetch successfully', 200);
+        return APIResponse::success(new CategoryResource($category), 'Fetch Successfully', 200);
     }
 
     /**
@@ -247,6 +243,24 @@ class CategoryController extends Controller
             return APIResponse::success(null, 'Deleted successfully', 200);
         } catch (Exception $ex) {
             return APIResponse::error('Failed to delete category. Please try again later.', 500);
+        }
+    }
+
+    /**
+     * Get the list of items belonging to a specific category.
+     * 
+     * @param Request $request The request object containing input data.
+     * @param Category $category The category for which the list of items is requested.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the list of items or an error message.
+     */
+    public function getCategoryListOfItems(Request $request, Category $category)
+    {
+        $param = $request->all();
+        try {
+            $data = $this->categoryService->getListOfItems($category, $param);
+            return APIResponse::success(CategoryResource::collection($data), 'Data fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to fetch data.', 500);
         }
     }
 }

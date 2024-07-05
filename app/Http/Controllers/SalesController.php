@@ -63,14 +63,14 @@ class SalesController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $query = Sales::query();
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'LIKE', "%{$search}%");
+        try {
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', 0);
+            $data = $this->salesService->getData($request->all(), $page, $perPage);
+            return APIResponse::success(SalesService::collection($data), 'Fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to create category. Please try again later.', 500);
         }
-        $query = $query->paginate($perPage);
-        return APIResponse::success(SalesResource::collection($query), 'Sales fetched successfully', 200);
     }
 
     /**

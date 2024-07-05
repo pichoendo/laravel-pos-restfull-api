@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Role;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
@@ -17,6 +18,20 @@ class RoleService
     public function create(array $param): Role
     {
         return Role::create($param);
+    }
+
+    public function getData($param, $page, $perPage): LengthAwarePaginator
+    {
+        $query = Role::query();
+
+        if (isset($param['search'])) {
+            $search = $param['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     /**

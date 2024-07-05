@@ -4,15 +4,19 @@ This project is a personal learning endeavor focused on developing a RESTful API
 
 ## Overview
 
-The POS RESTful API project aims to implement a robust API for a Point of Sale (POS) system. It includes functionalities such as user authentication, category management, item management, and coupon management.
+This project implements a robust RESTful API for a Point of Sale (POS) system, designed to streamline retail management operations. Key features include:
 
-## Features
+Authentication & Authorization: Supports roles for supervisors, admins, and cashiers.
+User Management: CRUD operations for user roles and permissions.
+Category & Item Management: Organize inventory efficiently with category and item CRUD operations.
+Coupon Management: Create, apply, and manage discounts seamlessly.
+Sales Order Processing: Handle transactions and calculate commissions based on employee roles.
+Commission & Salary Integration: Commissions are included in monthly salary calculations.
+Member Benefits: Customers earn 1% of their sales as credit. credit can be used for next order.
+This API project showcases my learning journey in building a comprehensive POS system using Laravel, focusing on key aspects of RESTful API development and advanced features integration.
 
-- User authentication using Laravel Passport.
-- CRUD operations for categories, items, and coupons.
-- Search and pagination for categories and coupons.
-- Data validation using Laravel Form Requests.
-- Centralized error handling and response formatting.
+
+
 
 ## Technologies Used
 

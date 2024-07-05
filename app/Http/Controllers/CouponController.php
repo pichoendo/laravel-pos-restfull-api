@@ -74,19 +74,14 @@ class CouponController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-
-        $query = Coupon::query();
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
+        try {
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', 0);
+            $data = $this->couponService->getData($request->all(), $page, $perPage);
+            return APIResponse::success(CouponResource::collection($data), 'Fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to create category. Please try again later.', 500);
         }
-
-        $coupons = $query->paginate($perPage);
-
-        return APIResponse::success(CouponResource::collection($coupons), 'Fetch successfully', 200);
     }
 
     /**
@@ -273,6 +268,35 @@ class CouponController extends Controller
             return APIResponse::success(null, 'Coupon deleted successfully', 200);
         } catch (Exception $ex) {
             return APIResponse::error('Failed to delete coupon. Please try again later.', 500);
+        }
+    }
+
+    /**
+     * Get the list of coupon usage on sales.
+     * 
+     * @param Request $request The request object containing input data.
+     * @param Category $coupon The Coupon for which the list of usage is requested.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the list of items or an error message.
+     */
+    public function getCouponUsage(Request $request, Coupon $coupon)
+    {
+        $param = $request->all();
+        try {
+            $data = $this->couponService->getListOfUsage($coupon, $param);
+            return APIResponse::success(CouponResource::collection($data), 'Data fetch successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to fetch data.', 500);
+        }
+    }
+
+    public function getMostUsedCoupons(Request $request)
+    {
+        $param = $request->all();
+        try {
+            $data = $this->couponService->getMostUsedCoupons($param);
+            return APIResponse::success(CouponResource::collection($data), 'data created successfully', 200);
+        } catch (Exception $ex) {
+            return APIResponse::error('Failed to fetch employee. Please try again later.', 500);
         }
     }
 }
