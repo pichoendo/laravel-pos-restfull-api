@@ -12,7 +12,6 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPoinLogController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalesController;
-use App\Models\EmployeeSalary;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
