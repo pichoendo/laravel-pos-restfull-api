@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('phone_no')->nullable();
             $table->string('username')->unique();
             $table->string('password');
+            $table->string('email')->unique();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->foreign('updated_by')->references('id')->on('employees');
             $table->unsignedBigInteger('created_by')->nullable();

@@ -67,7 +67,7 @@ class SalesController extends Controller
             $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 0);
             $data = $this->salesService->getData($request->all(), $page, $perPage);
-            return APIResponse::success(SalesService::collection($data), 'Fetch successfully', 200);
+            return APIResponse::success(SalesResource::collection($data), 'Fetch successfully', 200);
         } catch (Exception $ex) {
             return APIResponse::error('Failed to create category. Please try again later.', 500);
         }

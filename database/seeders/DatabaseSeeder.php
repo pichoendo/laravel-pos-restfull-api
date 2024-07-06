@@ -28,12 +28,14 @@ class DatabaseSeeder extends Seeder
             Employee::create([
                 'name' => 'Echo',
                 'username' => 'super_vise',
+                'email' => 'roomworkstudio@gmail.com',
                 'role_id' => 1,
                 'password' => Hash::make('123123'),
             ]);
 
             Member::create([
                 'name' => 'Member',
+                'email' => 'roomworkstudio@gmail.com',
                 'phone_no' => '0823',
             ]);
 

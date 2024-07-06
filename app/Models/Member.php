@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * @OA\Schema(
@@ -64,7 +65,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Member extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -74,6 +75,7 @@ class Member extends Model
     protected $fillable = [
         'name',
         'phone_no',
+        'email',
         'code',
         'point',
     ];

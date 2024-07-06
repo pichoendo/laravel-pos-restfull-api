@@ -21,7 +21,7 @@ class MemberPoinLogController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/members",
+     *     path="/api/members/po",
      *     summary="List members",
      *     description="Get a paginated list of members",
      *     operationId="getMembers",

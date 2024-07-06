@@ -15,6 +15,7 @@ use Illuminate\Foundation\Http\FormRequest;
  *     @OA\Property(property="role_id", type="integer", example=1),
  *     @OA\Property(property="address", type="string", example="123 Main St, City"),
  *     @OA\Property(property="username", type="string", example="johndoe"),
+ *     @OA\Property(property="email", type="string", example="johndoe@gmail.com"),
  *     @OA\Property(property="password", type="string", format="password", example="secret"),
  *     @OA\Property(property="password_confirmation", type="string", format="password", example="secret"),
  * )
@@ -41,6 +42,7 @@ class StoreEmployeeRequest extends FormRequest
             'phone_no'  => 'required|string|max:18',
             'role_id' => 'required|integer',
             'address' => 'required|string|255',
+            'email' => 'required|unique:employees,email',
             'username' => 'required|string|max:10',
             'password' => 'required|min:6',
             'password_confirmation' => 'required|same:password',

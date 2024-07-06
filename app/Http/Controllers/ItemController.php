@@ -250,45 +250,29 @@ class ItemController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/items",
-     *     summary="Get items",
-     *     description="Fetch a list of items with optional search query",
-     *     operationId="getItems",
-     *     tags={"Items"},
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="Number of items per page",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="search",
-     *         in="query",
-     *         description="Search query",
-     *         required=false,
-     *         @OA\Schema(type="string")
-     *     ),
+     *     path="/api/coupons/most-used",
+     *     summary="Get the most used coupons",
      *     @OA\Response(
      *         response=200,
-     *         description="Items fetched successfully",
+     *         description="List of most used coupons",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Item")),
-     *             @OA\Property(property="message", type="string", example="Fetch successfully")
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Coupon")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal server error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Failed to fetch items. Please try again later.")
-     *         )
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=10
+     *         ),
+     *         description="Limit the number of coupons returned"
      *     )
      * )
      */
-    public function getItemStocks(Request $request, Item $item)
+    public function getItemStocks(Item $item)
     {
         try {
             $data = $this->itemService->getItemStocks($item);

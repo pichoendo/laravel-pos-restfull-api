@@ -33,6 +33,7 @@ class StoreMemberRequest extends FormRequest
     {
         return [
             'name'  => 'required|string|max:86',
+            'email' => 'required|unique:members,email',
             'phone_no'  => 'required|unique:members,phone_no,NULL,id,deleted_at,NULL',
         ];
     }

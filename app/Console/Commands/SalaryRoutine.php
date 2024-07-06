@@ -7,23 +7,6 @@ use Illuminate\Console\Command;
 
 class SalaryRoutine extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'salary:generate';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Script to calculate and store salary of employee every month';
-
-    /**
-     * Execute the console command.
-     */
 
     protected SalaryService $salaryService;
 
@@ -33,8 +16,29 @@ class SalaryRoutine extends Command
         $this->salaryService = $salaryService;
     }
 
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:salary-generate';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Calculate and store salary of employee every month';
+
+    /**
+     * Execute the console command.
+     */
+
+
+
     public function handle()
     {
+        $this->info('Start generate the employee salary');
         $this->salaryService->generateSalary();
     }
 }

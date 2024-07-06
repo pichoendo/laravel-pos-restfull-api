@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('code');
+            $table->string('email')->unique();
             $table->string('phone_no')->nullable();
             $table->double('point')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

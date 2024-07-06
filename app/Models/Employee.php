@@ -24,6 +24,21 @@ class Employee extends Model
 {
     use HasFactory, Notifiable, HasApiTokens, Authenticatable, SoftDeletes;
 
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'username',
+        'email',
+        'role_id',
+        'address',
+        'phone_no',
+        'password'
+    ];
     /**
      * The attributes that are mass assignable.
      *

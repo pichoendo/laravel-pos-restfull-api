@@ -19,9 +19,15 @@ use Illuminate\Foundation\Http\FormRequest;
  *         property="phone_no",
  *         type="string",
  *         description="Member's phone number"
- *     )
+ *     ),  
+ *     @OA\Property(
+ *         property="email",
+ *         type="string",
+ *         description="Member's email"
+ *    )
  * )
  */
+
 class UpdateMemberRequest extends FormRequest
 {
     /**
@@ -41,6 +47,7 @@ class UpdateMemberRequest extends FormRequest
     {
         return [
             'name'  => 'required|string|max:86',
+            'email' => 'required|unique:members,email',
             'phone_no'  => 'required|unique:members,phone_no',
         ];
     }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Employee;
 use App\Models\EmployeeSalary;
+use App\Notifications\SalaryReport;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -52,6 +53,7 @@ class SalaryService
 
                 // Deduct the calculated commission from the commission logs
                 $this->employeeComissionLogService->subCommission($salary, $salesCommission);
+                $salary->employee->notify( new SalaryReport($salary));
             }
 
             DB::commit();

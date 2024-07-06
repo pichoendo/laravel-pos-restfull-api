@@ -6,6 +6,7 @@ use App\Models\Sales;
 use App\Models\SalesItem;
 use App\Models\SalesPaymentWithCard;
 use App\Models\SalesWithCoupon;
+use App\Notifications\SalesReport;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -161,6 +162,7 @@ class SalesService
         // Add points to the member if applicable
         if ($sales->member) {
             $this->memberSalesPointLogService->addPoint($sales);
+            $sales->member->notify(new SalesReport($sales));
         }
 
         // Process payment with card if card number is provided
