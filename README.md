@@ -20,10 +20,10 @@ This API project showcases my learning journey in building a comprehensive POS s
 
 ## Technologies Used
 
-- **Laravel**: PHP framework for building web applications, providing MVC architecture and robust features.
+- **Laravel 11** : 
 - **MySQL**: Relational database management system used for data storage.
-- **RESTful API**: Architectural style for designing networked applications, leveraging HTTP protocols.
-- **Git & GitHub**: Version control system and repository hosting service for collaborative development.
+- **REST API**: Architectural style for designing networked applications, leveraging HTTP protocols.
+
 
 ## Installation
    ```bash
