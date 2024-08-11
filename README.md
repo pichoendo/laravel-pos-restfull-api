@@ -26,8 +26,6 @@ This API project showcases my learning journey in building a comprehensive POS s
 - **Git & GitHub**: Version control system and repository hosting service for collaborative development.
 
 ## Installation
-
-1. **i**
    ```bash
    git clone https://github.com/your_username/pos-restful-api.git
    cd pos-restful-api
