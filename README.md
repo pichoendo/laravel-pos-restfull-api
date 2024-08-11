@@ -20,10 +20,9 @@ This API project showcases my learning journey in building a comprehensive POS s
 
 ## Technologies Used
 
-- **Laravel 11** : 
-- **MySQL**: Relational database management system used for data storage.
-- **REST API**: Architectural style for designing networked applications, leveraging HTTP protocols.
-
+- **Laravel 11**
+- **MySQL**
+- **REST API**
 
 ## Installation
    ```bash
