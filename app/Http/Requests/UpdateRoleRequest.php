@@ -4,13 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/** @OA\Schema(
- *      title="Update Role Request",
- *      description="Update Role request body data",
- *      type="object",
- *      required={"name", "basic_salary", "commission_percentage"}
- * )
- */
 class UpdateRoleRequest extends FormRequest
 
 {
@@ -20,7 +13,7 @@ class UpdateRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user()->role_id == 1;
+        return $this->user()->can('manage_role');
     }
 
     /**
@@ -32,8 +25,8 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'name'  => 'required|string|max:86',
-            'basic_salary'  => 'required',
-            'commission_percentage'  => 'required',
+            'basic_salary'  => '',
+            'commission_percentage'  => '',
         ];
     }
 }

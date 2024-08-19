@@ -2,26 +2,22 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Responses\ApiResponse;
+
 /**
  * @OA\Info(
- *      version="1.0.0",
- *      title="Documentation POS API",
- *      description="This API documentation outlines the features and endpoints of a Laravel project designed to master RESTful API development using Sanctum. It provides comprehensive documentation for secure user authentication, token-based sessions, and role-based access control. Developed as a learning tool, this project demonstrates best practices in Laravel API design, including resourceful routing, middleware application, and data validation techniques. It serves as a practical guide for developers aiming to implement modern API solutions with Laravel and Sanctum",
- *      @OA\Contact(
- *          email="pichoendoo@gmail.com"
- *      ),
- *      @OA\License(
- *          name="Apache 2.0",
- *          url="http://www.apache.org/licenses/LICENSE-2.0.html"
- *      )
+ *    title="Laravel 11 Pos API Documentation",
+ *    version="1.0.0",
  * )
- *
- * @OA\Server(
- *      url=L5_SWAGGER_CONST_HOST,
- *      description="Demo API Server"
+ * @OA\SecurityScheme(
+ *     type="http",
+ *     securityScheme="bearerAuth",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
  * )
  */
 abstract class Controller
 {
-    //
+    public function __construct(public ApiResponse $apiResponse, public $perPage = 10, public $startPage = 10) {}
 }

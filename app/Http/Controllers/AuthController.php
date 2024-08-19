@@ -2,88 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\LoginRequest;
-use App\Http\Responses\APIResponse;
-use App\Models\Employee;
-use Illuminate\Support\Facades\Hash;
+use App\Responses\ApiResponse;
+use App\Services\AuthenticationService;
+use Exception;
+use Illuminate\Http\Request;
 
-class AuthController extends BaseController
+class AuthController extends Controller
 {
     /**
-     * @OA\Post(
-     *     path="/api/login",
-     *     summary="Employee login",
-     *     description="Log in an employee and generate a token",
-     *     operationId="login",
+     * AuthController constructor.
+     *
+     * This constructor initializes the `CategoryController` by injecting 
+     * the `AuthService` and `ApiResponse` dependencies. The `AuthService` 
+     * is used for handling authentication-related logic, and the `ApiResponse` 
+     * is passed to the parent controller to handle standardized API responses.
+     * 
+     * @param AuthenticationService $authService  Service to handle authentication logic.
+     * @param ApiResponse $apiResponse  Utility to standardize API responses.
+     */
+    public function __construct(public AuthenticationService $authService, ApiResponse $apiResponse)
+    {
+        parent::__construct($apiResponse);
+    }
+
+    /**
+     * Retrieve the authenticated user's information.
+     *
+     * This method fetches the currently authenticated user's data 
+     * using the `authService` and returns it in the response.
+     *
+     * 
+     * @OA\Get(
+     *     path="/api/v1/me",
+     *     summary="Get user auth data",
+     *     description="This endpoint retrieves authentication data for a specific user. Provide the user’s identifier or token to obtain information such as authentication status, user roles, and permissions.",
+     *     operationId="Get Auth User Data",
      *     tags={"Authentication"},
-     *     @OA\RequestBody(
+     *     @OA\Parameter(
+     *         name="Authorization",
+     *         in="header",
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"username","password"},
-     *             @OA\Property(property="username", type="string", example="johndoe"),
-     *             @OA\Property(property="password", type="string", example="password123")
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Login successful",
+     *         description="Response when the data fetched successfully.",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Fetch successful"),
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="token", type="string", example="your-token-here"),
-     *                 @OA\Property(property="name", type="string", example="John Doe")
+     *                 @OA\Property(property="name", type="string", example="John Doe"),
+     *                 @OA\Property(property="usernmae", type="string", example="John Doe")
      *             ),
-     *             @OA\Property(property="message", type="string", example="Login successful")
      *         )
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Invalid credentials",
+     *          description="Response when the session has expired or the user is not authenticated.",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Invalid credentials")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Login failed. Please try again later.",
+     *         description="Response when there are issues on the server",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Login failed. Please try again later.")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=422),
+     *             @OA\Property(property="message", type="string", example="Oops trouble was happend in our server, please try again in few seconds")
      *         )
-     *     )
+     *     ),
      * )
-
-     *
-     * @param  \App\Http\Requests\LoginRequest  $request
-     * @return \Illuminate\Http\Response
+     * 
+     * 
+     * @param  \Illuminate\Http\Request $request  The request object.
+     * @return \Illuminate\Http\Response  The HTTP response containing the user data or error message.
+     * 
      */
-    public function login(LoginRequest $request)
+    public function __invoke(Request $request)
     {
         try {
-            // Validate incoming login request
-            $request->validated();
-
-            // Attempt to find the employee by username
-            $employee = Employee::where('username', $request->username)->first();
-
-            // Check if employee exists and verify passwords
-            if (!$employee || !Hash::check($request->password, $employee->password)) {
-                return APIResponse::error('Invalid credentials', 401);
-            }
-
-            // Generate a new plain text token for the employee
-            $token = $employee->createToken('token-name')->plainTextToken;
-
-            // Prepare success response with token and employee name
-            $success['token'] = $token;
-            $success['name'] =  $employee->name;
-
-            // Return success response with token and name
-            return APIResponse::success($success, 'Login successful', 200);
-        } catch (\Exception $e) {
-            // Handle exceptions gracefully, e.g., log them
-            return APIResponse::error('Login failed. Please try again later.', 500);
+            $data = $this->authService->getUser();
+            return $this->apiResponse->success($data, "Data fetch successful {$request->header('Authorization')}", 200);
+        } catch (Exception $e) {
+            return $this->apiResponse->error('Failed to fetch user data. Please try again later.', 500, [$e->getMessage()]);
         }
     }
 }

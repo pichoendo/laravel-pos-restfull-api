@@ -2,66 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @OA\Schema(
- *     title="SalesItem",
- *     description="SalesItem model",
- *     @OA\Property(
- *         property="id",
- *         type="integer",
- *         description="ID of the sales item"
- *     ),
- *     @OA\Property(
- *         property="qty",
- *         type="integer",
- *         description="Quantity of the item"
- *     ),
- *     @OA\Property(
- *         property="price",
- *         type="number",
- *         format="float",
- *         description="Price per unit of the item"
- *     ),
- *     @OA\Property(
- *         property="sales_id",
- *         type="integer",
- *         description="ID of the sales order"
- *     ),
- *     @OA\Property(
- *         property="item_id",
- *         type="integer",
- *         description="ID of the item"
- *     ),
- *     @OA\Property(
- *         property="sub_total",
- *         type="number",
- *         format="float",
- *         description="Subtotal of the sales item"
- *     ),
- *     @OA\Property(
- *         property="uuid",
- *         type="string",
- *         description="UUID of the sales item"
- *     ),
- *     @OA\Property(
- *         property="created_by",
- *         type="integer",
- *         description="ID of the user who created the sales item"
- *     ),
- *     @OA\Property(
- *         property="updated_by",
- *         type="integer",
- *         description="ID of the user who last updated the sales item"
- *     )
- * )
- */
 class SalesItem extends Model
 {
-    use HasFactory;
+    use HasFactory ,Cacheable;
 
     /**
      * The attributes that are mass assignable.

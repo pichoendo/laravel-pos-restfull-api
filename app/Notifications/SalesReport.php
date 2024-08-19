@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 
-class SalesReport extends Notification
+class SalesReport extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -45,14 +45,14 @@ class SalesReport extends Notification
         $table .= '<th style="border: 1px solid #ddd; padding: 8px;">Total</th>';
         $table .= '</tr></thead>';
         $table .= '<tbody>';
-        foreach ($this->sales->items as $item) {
+        $this->sales->items->each(function ($item) use ($table) {
             $table .= '<tr>';
             $table .= '<td style="border: 1px solid #ddd; padding: 8px;">' . $item->sales->name . '</td>';
             $table .= '<td style="border: 1px solid #ddd; padding: 8px;">' . $item->qty . '</td>';
             $table .= '<td style="border: 1px solid #ddd; padding: 8px;">' . $item->price . '</td>';
             $table .= '<td style="border: 1px solid #ddd; padding: 8px;">' . $item->sub_total . '</td>';
             $table .= '</tr>';
-        }
+        });
         $table .= '<tr>';
         $table .= '<th style="border: 1px solid #ddd; padding: 8px;"></th>';
         $table .= '<th style="border: 1px solid #ddd; padding: 8px;"></th>';
@@ -75,7 +75,7 @@ class SalesReport extends Notification
             ->subject('Sales Report')
             ->line('Here are the details of your recent purchase:')
             ->line(new HtmlString($table))
-            ->line('Thank you for your dedication!');
+            ->line('Thank you, we wait for your next coming !');
     }
 
     /**

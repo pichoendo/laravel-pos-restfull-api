@@ -7,393 +7,775 @@ use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Http\Resources\ItemStockResource;
-use App\Http\Responses\APIResponse;
+use App\Responses\ApiResponse;
 use App\Services\ItemService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class ItemController extends Controller
+class ItemController extends PaginateController implements HasMiddleware
 {
-    private ItemService $itemService;
 
     /**
      * ItemController constructor.
      *
+     * 
+     * This constructor initializes the `EmployeeSalesCommissionLogController` by injecting 
+     * the `EmployeeComissionService` and `ApiResponse` dependencies. The `EmployeeComissionService` 
+     * is used for handling EmployeeComission CRUD logic, and the `ApiResponse` 
+     * is passed to the parent controller to handle standardized API responses.
+     *
+     *  
      * @param ItemService $itemService
+     * @param  \App\Http\Responses\ApiResponse  $apiResponse  The service for standardized API responses.
      */
-    public function __construct(ItemService $itemService)
+    public function __construct(public ItemService $itemService, ApiResponse $apiResponse)
     {
-        $this->itemService = $itemService;
+        parent::__construct($apiResponse);
+    }
+    /**
+     * Define the middleware applied to the controller methods.
+     *
+     * This method returns an array of middleware configurations:
+     * - The 'manage_item' permission is required to access the 'update', 'store', and 'destroy' methods.
+     * - The 'manage_item' or 'consume_item' permissions are required to access the 'index', 'show', and 'getItemListOfItems' methods.
+     *
+     * @return array The array of middleware applied to the controller methods.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:manage_item', only: ['update',  'store', 'destroy']), // apply for manage_item
+            new Middleware('permission:manage_item|consume_item', only: ['index', 'show', 'getItemListOfItems',]), // apply for manage_item & consume_item
+        ];
     }
 
-
     /**
+     * Display a listing of the items.
+     *
      * @OA\Get(
-     *     path="/api/items",
-     *     summary="Get items",
-     *     description="Fetch a list of items with optional search query",
-     *     operationId="getItems",
-     *     tags={"Items"},
+     *     path="/api/v1/item",
+     *     summary="Retrieve a list of items",
+     *     description="This endpoint is used to retrieve a paginated list of items. You can set the number of items per page using the 'perPage' parameter and specify the page using the 'page' parameter. It is also possible to filter the results by keyword using the 'search' parameter",
+     *     operationId="GetItemList",
+     *     tags={"Item"},
      *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="Number of items per page",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="search",
-     *         in="query",
-     *         description="Search query",
-     *         required=false,
-     *         @OA\Schema(type="string")
+     *         name="Authorization",
+     *         in="header",
+     *         required=true,
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Items fetched successfully",
+     *         description="Response when the list of items is successfully retrieved",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Item")),
-     *             @OA\Property(property="message", type="string", example="Fetch successfully")
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item fetched successfully"),
+     *             @OA\Property(property="result", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="1"),
+     *                         @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                         @OA\Property(property="name", type="string", example="Item 1"),
+     *                         @OA\Property(property="price", type="int", example=4000),
+     *                         @OA\Property(property="image_file", type="file", example=""),
+     *                         @OA\Property(property="item_id", type="int", example=1),
+     *                         @OA\Property(property="cogs", type="file", example=2500),
+     *                         @OA\Property(property="qty", type="int", example=30),
+     *                     ),
+     *                 ),
+     *                 @OA\Property(property="paginate", type="object",
+     *                     @OA\Property(property="current_page", type="int", example="1"),
+     *                     @OA\Property(property="per_page", type="int", example="10"),
+     *                     @OA\Property(property="total", type="int", example="20")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal server error",
+     *         description="Response when there are issues on the server",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Failed to fetch items. Please try again later.")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
      *         )
      *     )
      * )
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
-        try {
-            $perPage = $request->input('per_page', 10);
-            $page = $request->input('page', 0);
-            $data = $this->itemService->getData($request->all(), $page, $perPage);
-            return APIResponse::success(ItemResource::collection($data), 'Fetch successfully', 200);
-        } catch (Exception $ex) {
-            return APIResponse::error('Failed to create category. Please try again later.', 500);
-        }
+
+        $perPage = $request->input('per_page', $this->PER_PAGE);
+        $page = $request->input('page', $this->START_PAGE);
+        $search = $request->input('search', "");
+
+        $data = $this->itemService->getData($search, $page, $perPage);
+        return $this->apiResponse->success(ItemResource::collection($data), 'Fetch successfully', 200);
     }
 
+
+
     /**
+     * Store a newly created item in storage.
+     *
+     * 
      * @OA\Post(
-     *     path="/api/items",
-     *     summary="Create item",
-     *     description="Create a new item",
-     *     operationId="storeItem",
-     *     tags={"Items"},
+     *     path="/api/v1/item",
+     *     summary="Save a item",
+     *     description="The endpoint for create a item.",
+     *     operationId="SaveItem",
+     *     tags={"Item"},
+     *     @OA\Parameter(
+     *         name="Authorization",
+     *         in="header",
+     *         required=true,
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
+     *         )
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/StoreItemRequest")
+     *         @OA\JsonContent(
+     *             required={"name","price","cogs","image_file","item_id","cogs","qty"},
+     *             @OA\Property(property="name", type="string", example="Item 1"),
+     *             @OA\Property(property="price", type="int", example=4000),
+     *             @OA\Property(property="image_file", type="file", example=""),
+     *             @OA\Property(property="item_id", type="int", example=1),
+     *             @OA\Property(property="cogs", type="file", example=2500),
+     *             @OA\Property(property="qty", type="int", example=30),
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Item created successfully",
+     *         description="Response when the item is successfully created",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Item"),
-     *             @OA\Property(property="message", type="string", example="Item created successfully")
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item saved successfully"),
+     *             @OA\Property(property="result", type="object",
+     *                     @OA\Property(property="id", type="string", example="1"),
+     *                     @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                     @OA\Property(property="name", type="string", example="Item 1"),
+     *                     @OA\Property(property="price", type="int", example=4000),
+     *                     @OA\Property(property="image_file", type="file", example=""),
+     *                     @OA\Property(property="item_id", type="int", example=1),
+     *                     @OA\Property(property="cogs", type="file", example=2500),
+     *                     @OA\Property(property="qty", type="int", example=30),
+     *                 ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Response when there are issues on the validation process",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=422),
+     *             @OA\Property(property="message", type="string", example="Form validation unsuccessful. Check the error details for futhermore"),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="field", type="array",
+     *                     @OA\Items(type="string", example="The field is required.")
+     *                 ),
+     *                 @OA\Property(property="anotherField", type="array",
+     *                     @OA\Items(type="string", example="The field must be a string.")
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal server error",
+     *         description="Response when there are issues on the server",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Failed to create item. Please try again later.")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
      *         )
      *     )
      * )
+     * 
+     * @param StoreItemRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreItemRequest $request)
     {
         $params = $request->validated();
         try {
             $data = $this->itemService->create($params);
-            return APIResponse::success(new ItemResource($data), 'Item created successfully', 200);
+            return $this->apiResponse->success(new ItemResource($data), 'Item created successfully', 201);
         } catch (Exception $ex) {
-            return APIResponse::error('Failed to create item. Please try again later.', 500);
+            return $this->apiResponse->error('Failed to create item. Please try again later.', 500);
         }
     }
 
     /**
+     * Display the specified item.
+     *
+     * 
      * @OA\Get(
-     *     path="/api/items/{item}",
-     *     summary="Get item",
-     *     description="Fetch a specific item by ID",
-     *     operationId="getItem",
-     *     tags={"Items"},
+     *     path="/api/v1/item/{uuid}",
+     *     summary="Retrieve a item by its UUID.",
+     *     description="This endpoint allows you to retrieve details of a specific item using its UUID. Provide the UUID of the item in the request to get information such as the item's name, description, and any other relevant details",
+     *     operationId="GetItem",
+     *     tags={"Item"},
      *     @OA\Parameter(
-     *         name="item",
-     *         in="path",
-     *         description="Item ID",
+     *         name="Authorization",
+     *         in="header",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the data",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Skfr-4584kndir4-456"
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Item fetched successfully",
+     *         description="Response when the data retrived successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Item"),
-     *             @OA\Property(property="message", type="string", example="Fetch successfully")
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item fetched successfully"),
+     *             @OA\Property(property="result", type="object",
+     *                     @OA\Property(property="id", type="string", example="1"),
+     *                     @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                     @OA\Property(property="name", type="string", example="Item 1"),
+     *                     @OA\Property(property="price", type="int", example=4000),
+     *                     @OA\Property(property="image_file", type="file", example=""),
+     *                     @OA\Property(property="item_id", type="int", example=1),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Response when the data was not found.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=404),
+     *             @OA\Property(property="message", type="string", example="The data was not found.")
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal server error",
+     *         description="Response when there are issues on the server",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Failed to fetch item. Please try again later.")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
      *         )
      *     )
      * )
+     * 
+     * @param Item $item
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show(Item $item)
     {
-        return APIResponse::success(new ItemResource($item), 'Fetch successfully', 200);
+        return $this->apiResponse->success(new ItemResource($item), 'Fetch successfully', 200);
     }
 
     /**
+     * Update the specified item in storage.
+     *
+     * 
      * @OA\Put(
-     *     path="/api/items/{item}",
-     *     summary="Update item",
-     *     description="Update an existing item",
-     *     operationId="updateItem",
-     *     tags={"Items"},
+     *     path="/api/v1/item/{uuid}",
+     *     summary="Update a item",
+     *     description="This endpoint allows you to update the details of an existing item. Provide the item's UUID and the updated information in the request body to modify attributes such as the item's name and thumbnail.",
+     *     operationId="UpdateItem",
+     *     tags={"Item"},
      *     @OA\Parameter(
-     *         name="item",
-     *         in="path",
-     *         description="Item ID",
+     *         name="Authorization",
+     *         in="header",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
+     *         )
      *     ),
-     *     @OA\RequestBody(
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/UpdateItemRequest")
+     *         description="UUID of the data",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Skfr-4584kndir4-456"
+     *         )
+     *     ),
+     *    @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Item 1"),
+     *             @OA\Property(property="price", type="int", example=4000),
+     *             @OA\Property(property="image_file", type="file", example=""),
+     *             @OA\Property(property="item_id", type="int", example=1),
+     *         )
+     *     ),
+     *    @OA\Response(
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Item updated successfully",
+     *         description="Response when the data updated successfully.",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Item"),
-     *             @OA\Property(property="message", type="string", example="Item updated successfully")
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item updated successfully"),
+     *             @OA\Property(property="result", type="object",
+     *                     @OA\Property(property="id", type="string", example="1"),
+     *                     @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                     @OA\Property(property="name", type="string", example="Item 1"),
+     *                     @OA\Property(property="price", type="int", example=4000),
+     *                     @OA\Property(property="image_file", type="file", example=""),
+     *                     @OA\Property(property="item_id", type="int", example=1),
+     *                     @OA\Property(property="cogs", type="file", example=2500),
+     *                     @OA\Property(property="qty", type="int", example=30),
+     *                 ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Response when the data was not found.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=404),
+     *             @OA\Property(property="message", type="string", example="The data was not found.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Response when there are issues on the validation process",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=422),
+     *             @OA\Property(property="message", type="string", example="Form validation unsuccessful. Check the error details for futhermore"),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="field", type="array",
+     *                     @OA\Items(type="string", example="The field is required.")
+     *                 ),
+     *                 @OA\Property(property="anotherField", type="array",
+     *                     @OA\Items(type="string", example="The field must be a string.")
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal server error",
+     *         description="Response when there are issues on the server",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Failed to update item. Please try again later.")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
      *         )
      *     )
      * )
+     * 
+     * @param UpdateItemRequest $request
+     * @param Item $item
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateItemRequest $request, Item $item)
     {
         $params = $request->validated();
+
         try {
             $data = $this->itemService->update($item, $params);
-            return APIResponse::success(new ItemResource($data), 'Item updated successfully', 200);
+            return $this->apiResponse->success(new ItemResource($data), 'Item updated successfully', 201);
         } catch (Exception $ex) {
-            return APIResponse::error('Failed to update item. Please try again later.', 500);
+            return $this->apiResponse->error('Failed to update item. Please try again later.', 500);
         }
     }
 
     /**
-     * @OA\Delete(
-     *     path="/api/items/{item}",
-     *     summary="Delete item",
-     *     description="Delete a specific item by ID",
-     *     operationId="deleteItem",
-     *     tags={"Items"},
-     *     @OA\Parameter(
-     *         name="item",
-     *         in="path",
-     *         description="Item ID",
+     * Remove the specified item from storage.
+     *
+     * 
+     * * @OA\Delete(
+     *     path="/api/v1/item/{uuid}",
+     *     summary="Delete a item",
+     *     description="This endpoint allows you to delete a specific item from the system. Provide the UUID of the item you wish to remove, and the item will be permanently deleted from the database",
+     *     operationId="DeleteItem",
+     *     tags={"Item"},
+     *     @OA\Parameter(name="Authorization",
+     *         in="header",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the data",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Skfr-4584kndir4-456"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Response when the data was not found.",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=404),
+     *             @OA\Property(property="message", type="string", example="The data was not found.")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Item deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Deleted successfully")
+     *         description="Response when the data deleted successfully.",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Response when there are issues on the validation process",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=422),
+     *             @OA\Property(property="message", type="string", example="Form validation unsuccessful. Check the error details for futhermore"),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="field", type="array",
+     *                     @OA\Items(type="string", example="The field is required.")
+     *                 ),
+     *                 @OA\Property(property="anotherField", type="array",
+     *                     @OA\Items(type="string", example="The field must be a string.")
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal server error",
+     *         description="Response when there are issues on the server.",
      *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Failed to delete item. Please try again later.")
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
      *         )
      *     )
      * )
+     * 
+     * @param Item $item
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Item $item)
     {
         try {
             $this->itemService->destroy($item);
-            return APIResponse::success(null, 'Deleted successfully', 200);
+            return $this->apiResponse->success(null, 'Deleted successfully', 201);
         } catch (Exception $ex) {
-            return APIResponse::error('Failed to delete item. Please try again later.', 500);
+            return $this->apiResponse->error('Failed to delete item. Please try again later.', 500);
         }
     }
 
     /**
+     * Get the stock information for the specified item.
+     *
      * @OA\Get(
-     *     path="/api/coupons/most-used",
-     *     summary="Get the most used coupons",
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of most used coupons",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/Coupon")
+     *     path="/api/v1/item/{uuid}/stocks",
+     *     summary="Retrieve list stock of a items",
+     *     description="This endpoint retrieves a list stock of a items associated with a specific item. Provide the UUID of the item to get a detailed list of all items that belong to it, including their attributes and relevant information.",
+     *     operationId="GetStockItems",
+     *     tags={"Item"},
+     *     @OA\Parameter(
+     *         name="Authorization",
+     *         in="header",
+     *         required=true,
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="limit",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *             example=10
-     *         ),
-     *         description="Limit the number of coupons returned"
+     *     @OA\Response(
+     *         response=200,
+     *         description="Response when the data retrived successfully.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Item items data fetched successfully."),
+     *             @OA\Property(property="result", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="1"),
+     *                         @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                         @OA\Property(property="cogs", type="string", example="2500"),
+     *                         @OA\Property(property="qty", type="string", example="34")
+     *                     ),
+     *                 ),
+     *                 @OA\Property(property="paginate", type="object",
+     *                     @OA\Property(property="current_page", type="int", example="1"),
+     *                     @OA\Property(property="per_page", type="int", example="10"),
+     *                     @OA\Property(property="total", type="int", example="20")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Response when there are issues on the server",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
+     *         )
      *     )
      * )
+     * 
+     * @param Item $item
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getItemStocks(Item $item)
     {
         try {
             $data = $this->itemService->getItemStocks($item);
-            return APIResponse::success(ItemStockResource::collection($data), 'Fetch successfully', 200);
+            return $this->apiResponse->success(ItemStockResource::collection($data), 'Fetch successfully', 200);
         } catch (Exception $ex) {
-            return APIResponse::error('Failed to fetch data. Please try again later.', 500);
+            return $this->apiResponse->error('Failed to fetch data. Please try again later.', 500);
         }
     }
 
     /**
-     * @OA\Get(
-     *     path="/items/top-selling",
-     *     operationId="getTopSellingItems",
-     *     tags={"Items"},
-     *     summary="Get top selling items",
-     *     description="Returns a list of top selling items",
-     *     @OA\Response(
-     *         response=200,
-     *         description="Fetch successfully",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/Item")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Failed to fetch data. Please try again later."
-     *     ),
-     *     @OA\Parameter(
-     *         name="params",
-     *         in="query",
-     *         description="Parameters to filter the items",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="object"
-     *         )
-     *     ),
-     *     security={
-     *         {"api_key": {}}
-     *     }
-     * )
-     * Retrieves the top-selling items from the inventory.
-     * 
-     * This function accepts a validated request, which includes any filters or parameters
-     * needed to determine the top-selling items. It uses the itemService to query and
-     * retrieve the data, then returns it in a formatted API response.
+     * Get the top-selling items.
      *
-     * @param Request $request The request object containing validated input parameters.
-     * @return APIResponse Returns a successful API response with the collection of top-selling items
-     *                     and a status message, or an error response if the process fails.
-     */
-    public function getTopSellingItems(Request $request)
-    {
-        $params = $request->validated();
-        try {
-            $data = $this->itemService->getTopSellingItems($params);
-            return APIResponse::success(Item::collection($data), 'Fetch successfully', 200);
-        } catch (Exception $ex) {
-            return APIResponse::error('Failed to fetch data. Please try again later.', 500);
-        }
-    }
-
-    /**
      * @OA\Get(
-     *     path="/api/items/out-of-stock",
-     *     summary="Fetch out of stock items",
-     *     tags={"Items"},
+     *     path="/api/v1/item/topSelling",
+     *     summary="Retrieve a list of top selling items",
+     *     description="This endpoint is used to retrieve a paginated list of top selling items. You can set the number of items per page using the 'perPage' parameter and specify the page using the 'page' parameter. It is also possible to filter the results by keyword using the 'search' parameter",
+     *     operationId="GetItemTopSellingist",
+     *     tags={"Item"},
      *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="Page number",
-     *         required=false,
+     *         name="Authorization",
+     *         in="header",
+     *         required=true,
+     *         description="Bearer token for authentication",
      *         @OA\Schema(
-     *             type="integer",
-     *             default=1
+     *             type="string",
+     *             example="Bearer <your-token-here>"
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Response when the list of items is successfully retrieved",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(ref="#/components/schemas/Item")
-     *             ),
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="Fetch successfully"
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item fetched successfully"),
+     *             @OA\Property(property="result", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="1"),
+     *                         @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                         @OA\Property(property="name", type="string", example="Item 1"),
+     *                         @OA\Property(property="price", type="int", example=4000),
+     *                         @OA\Property(property="image_file", type="file", example=""),
+     *                         @OA\Property(property="item_id", type="int", example=1),
+     *                         @OA\Property(property="cogs", type="file", example=2500),
+     *                         @OA\Property(property="qty", type="int", example=30),
+     *                     ),
+     *                 ),
+     *                 @OA\Property(property="paginate", type="object",
+     *                     @OA\Property(property="current_page", type="int", example="1"),
+     *                     @OA\Property(property="per_page", type="int", example="10"),
+     *                     @OA\Property(property="total", type="int", example="20")
+     *                 )
      *             )
      *         )
      *     ),
      *     @OA\Response(
-     *         response=500,
-     *         description="Failed to fetch data",
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(
-     *                 property="error",
-     *                 type="string",
-     *                 example="Failed to fetch data. Please try again later."
-     *             )
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Response when there are issues on the server",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
      *         )
      *     )
      * )
- 
-     * Get out of stock items based on the provided request parameters.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTopSellingItems(Request $request)
+    {
+
+        try {
+            $perPage = $request->input('per_page', $this->PER_PAGE);
+            $page = $request->input('page', $this->START_PAGE);
+            $dateRange = $request->input('dateRange', null);
+
+            $data = $this->itemService->getTopSellingItems($page, $perPage, $dateRange);
+            return $this->apiResponse->success(Item::collection($data), 'Fetch successfully', 200);
+        } catch (Exception $ex) {
+            return $this->apiResponse->error('Failed to fetch data. Please try again later.', 500);
+        }
+    }
+
+    /**
+     * Get a list of out-of-stock items.
      *
-     * @param Request $request The HTTP request object containing input parameters.
-     * @return \Illuminate\Http\JsonResponse JSON response with the list of out of stock items or error message.
+     * @OA\Get(
+     *     path="/api/v1/item/lowStock",
+     *     summary="Retrieve a list of low stock items",
+     *     description="This endpoint is used to retrieve a paginated list of low stock items. You can set the number of items per page using the 'perPage' parameter and specify the page using the 'page' parameter. It is also possible to filter the results by keyword using the 'search' parameter",
+     *     operationId="GetItemLowStockist",
+     *     tags={"Item"},
+     *     @OA\Parameter(
+     *         name="Authorization",
+     *         in="header",
+     *         required=true,
+     *         description="Bearer token for authentication",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="Bearer <your-token-here>"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Response when the list of items is successfully retrieved",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data item fetched successfully"),
+     *             @OA\Property(property="result", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="1"),
+     *                         @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                         @OA\Property(property="name", type="string", example="Item 1"),
+     *                         @OA\Property(property="price", type="int", example=4000),
+     *                         @OA\Property(property="image_file", type="file", example=""),
+     *                         @OA\Property(property="item_id", type="int", example=1),
+     *                         @OA\Property(property="cogs", type="file", example=2500),
+     *                         @OA\Property(property="qty", type="int", example=30),
+     *                         @OA\Property(property="stocks", type="array",
+     *                                   @OA\Items(type="object",
+     *                                      @OA\Property(property="id", type="string", example="1"),
+     *                                      @OA\Property(property="uuid", type="string", example="Skfr-4584kndir4-456"),
+     *                                      @OA\Property(property="cogs", type="string", example="2500"),
+     *                                      @OA\Property(property="qty", type="string", example="34")
+     *                                   ),
+     *                          )
+     *                     ),
+     *                 ),
+     *                 @OA\Property(property="paginate", type="object",
+     *                     @OA\Property(property="current_page", type="int", example="1"),
+     *                     @OA\Property(property="per_page", type="int", example="10"),
+     *                     @OA\Property(property="total", type="int", example="20")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Response when the session has expired or the user is not authenticated.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=401),
+     *             @OA\Property(property="message", type="string", example="Your session has expired or you are not authenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Response when there are issues on the server",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="code", type="int", example=500),
+     *             @OA\Property(property="message", type="string", example="Oops, something went wrong on our server. Please try again later.")
+     *         )
+     *     )
+     * )
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getOutOfStockItems(Request $request)
     {
-        $params = $request->validated();
+
         try {
-            $data = $this->itemService->getOutOfStockItems($params);
-            return APIResponse::success(Item::collection($data), 'Fetch successfully', 200);
+            $perPage = $request->input('per_page', $this->PER_PAGE);
+            $page = $request->input('page', $this->START_PAGE);
+
+            $data = $this->itemService->getOutOfStockItems($page, $perPage);
+            return $this->apiResponse->success(Item::collection($data), 'Fetch successfully', 200);
         } catch (Exception $ex) {
-            return APIResponse::error('Failed to fetch data. Please try again later.', 500);
+            return $this->apiResponse->error('Failed to fetch data. Please try again later.', 500);
         }
     }
 }

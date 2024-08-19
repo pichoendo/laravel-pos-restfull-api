@@ -34,8 +34,6 @@ class SalaryRoutine extends Command
      * Execute the console command.
      */
 
-
-
     public function handle()
     {
         $this->info('Start generate the employee salary');

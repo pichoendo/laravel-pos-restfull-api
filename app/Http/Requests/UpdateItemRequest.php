@@ -4,14 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
- * @OA\Schema(
- *     title="UpdateItemRequest",
- *     description="Update Item Request Schema",
- *     type="object",
- *     required={"name", "image", "price"}
- * )
- */
 class UpdateItemRequest extends FormRequest
 {
     /**
@@ -19,7 +11,7 @@ class UpdateItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array(auth()->user()->role_id, [1, 2]);
+        return $this->user()->can('manage_item');
     }
 
     /**
@@ -30,10 +22,10 @@ class UpdateItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'  => 'required|string|max:86',
+            'name'  => 'string|max:86',
             'image_file'  => 'file|mimes:jpg,png|max:2048',
-            'price' => 'required|integer',
-            'category_id' => 'required|integer',
+            'price' => 'integer',
+            'category_id' => 'integer'
         ];
     }
 }

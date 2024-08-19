@@ -11,6 +11,7 @@ use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,33 +21,41 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
-            Role::create([
+            $role = Role::create([
                 'name' => 'Supervisior',
                 'basic_salary' => 1500000,
                 'commission_percentage' => 0.01
             ]);
-            Employee::create([
+
+           $e= Employee::create([
                 'name' => 'Echo',
                 'username' => 'super_vise',
                 'email' => 'roomworkstudio@gmail.com',
-                'role_id' => 1,
+                'role_id' => $role->id,
                 'password' => Hash::make('123123'),
             ]);
 
+            $manages[]  = Permission::create(['name' => 'manage_category']);
+            $manages[] = Permission::create(['name' => 'manage_item']);
+            $consume = Permission::create(['name' => 'consume_category']);
+    
+            $role->givePermissionTo($manages);
+            $role->givePermissionTo($consume);
+            $e->assignRole($role);
             Member::create([
                 'name' => 'Member',
-                'email' => 'roomworkstudio@gmail.com',
+                'email' => 'roomworkstudico@gmail.com',
                 'phone_no' => '0823',
             ]);
 
-            Category::create([
+            $cat=Category::create([
                 'name' => 'Asian Food',
                 'images' => "",
             ]);
 
             $item = Item::create([
                 'name' => 'Asian Food',
-                'category_id' => 1,
+                'category_id' => $cat->id,
                 'price' => 200,
             ]);
 

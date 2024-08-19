@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Employee;
+use App\Responses\ApiResponse;
 use App\Services\CodeGeneratorService;
 use App\Services\ItemStockService;
-use App\Services\MemberPointLogService;
-use App\Services\SalesService;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,13 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(ItemStockService::class, function ($app) {
-            return new ItemStockService();
-        });
-
-        $this->app->singleton(CodeGeneratorService::class, function ($app) {
-            return new CodeGeneratorService();
-        });
+        
     }
 
     /**
@@ -29,6 +27,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->configureRateLimiting();
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     */
+
+    protected function configureRateLimiting()
+    {
+
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+        });
+
+        RateLimiter::for('test', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by($request->ip()),
+            ];
+        });
     }
 }

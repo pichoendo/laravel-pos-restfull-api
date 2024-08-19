@@ -2,28 +2,31 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use App\Services\CodeGeneratorService;
 use Illuminate\Support\Str;
-use Illuminate\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
-/**
- * @OA\Schema(
- *     title="Employee",
- *     description="Employee model",
- *     @OA\Xml(
- *         name="Employee"
- *     )
- * )
- */
-class Employee extends Model
+class Employee extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, Authenticatable, SoftDeletes;
-
+    use HasFactory, HasRoles, Notifiable, HasApiTokens, SoftDeletes, Cacheable;
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -75,10 +78,16 @@ class Employee extends Model
             $model->code = app(CodeGeneratorService::class)->generateCode("EMP", Employee::class);
             $model->created_by = auth()->id();
             $model->updated_by = auth()->id();
+            $model->clearCache();
         });
 
         static::updating(function ($model) {
             $model->updated_by = auth()->id();
+            $model->clearCache(['cache_key_list_employee_royal']);
+        });
+
+        static::deleted(function ($model) {
+            $model->clearCache(['cache_key_list_employee_royal']);
         });
     }
 
@@ -129,5 +138,15 @@ class Employee extends Model
     public function salary()
     {
         return $this->hasMany(EmployeeSalary::class);
+    }
+
+    /**
+     * Get the computed attribute for employee commision of the item.
+     *
+     * @return int
+     */
+    public function getCommissionAttribute()
+    {
+        return $this->sales_point()->sum("value");
     }
 }

@@ -3,14 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-/**
- * @OA\Schema(
- *      title="UpdateSalesRequest",
- *      description="Update sales request body",
- *      type="object",
- *      required={"status", "sub_total", "total", "cart"},
- * )
- */
+
+
 class UpdateSalesRequest extends FormRequest
 {
     /**
@@ -18,7 +12,7 @@ class UpdateSalesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array(auth()->user()->role_id, [1, 3]);
+        return $this->user()->can('manage_sales');
     }
 
     /**

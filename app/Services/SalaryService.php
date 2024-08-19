@@ -10,17 +10,12 @@ use Exception;
 
 class SalaryService
 {
-    private EmployeeComissionLogService $employeeComissionLogService;
-
     /**
      * SalaryService constructor.
      *
      * @param EmployeeComissionLogService $employeeComissionLogService
      */
-    public function __construct(EmployeeComissionLogService $employeeComissionLogService)
-    {
-        $this->employeeComissionLogService = $employeeComissionLogService;
-    }
+    public function __construct(public EmployeeComissionLogService $employeeComissionLogService) {}
 
     /**
      * Generate monthly salary for all employees.
@@ -53,7 +48,7 @@ class SalaryService
 
                 // Deduct the calculated commission from the commission logs
                 $this->employeeComissionLogService->subCommission($salary, $salesCommission);
-                $salary->employee->notify( new SalaryReport($salary));
+                $salary->employee->notify(new SalaryReport($salary));
             }
 
             DB::commit();

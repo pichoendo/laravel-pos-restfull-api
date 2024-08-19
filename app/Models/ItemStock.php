@@ -2,25 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
 
-/**
- * @OA\Schema(
- *     schema="ItemStock",
- *     title="ItemStock",
- *     required={
- *         "item_id",
- *         "cogs",
- *         "qty"
- *     }
- * )
- */
+
 class ItemStock extends Model
 {
-    use HasFactory;
+    use HasFactory, Cacheable;
 
     /**
      * The attributes that are mass assignable.
@@ -56,10 +46,12 @@ class ItemStock extends Model
             }
             $model->created_by = auth()->user()->id ?? null;
             $model->updated_by = auth()->user()->id ?? null;
+            $model->clearCache(['cache_key_list_item', "cache_key_list_item_out_of_stock"]);
         });
 
         static::updating(function ($model) {
             $model->updated_by = auth()->user()->id ?? null;
+            $model->clearCache(['cache_key_list_item', "cache_key_list_item_out_of_stock"]);
         });
     }
 

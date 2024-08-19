@@ -7,7 +7,7 @@ use App\Models\ItemStock;
 use App\Models\ItemStockFlow;
 
 use App\Models\ItemStockOperation;
-
+use Illuminate\Support\Facades\Cache;
 
 class ItemStockService
 {
@@ -18,13 +18,22 @@ class ItemStockService
      * @param int $stockNeeded Required stock quantity.
      * @return bool True if stock quantity meets or exceeds $stockNeeded, false otherwise.
      */
-    public function checkStock($param, $stockNeeded)
+    public function checkStock($item_id, $stockNeeded)
     {
-        // Calculate the total stock quantity for the given item_id
-        $totalStock = ItemStock::where('item_id', $param['item_id'])->sum('qty');
+        $key = "ItemStock:checkStock:id[$item_id]";
+        $data = Cache::remember($key, now()->addHours(1), function () use ($item_id, $key) {
 
-        // Compare the total stock quantity with the required amount
-        return $totalStock >= $stockNeeded;
+            $listKey = "cache_key_list_check_stock_$item_id";
+            $list = Cache::get($listKey, []);
+            $list[] = $key;
+            
+            Cache::put($listKey, $list, 600);
+            // Calculate the total stock quantity for the given item_id
+            $totalStock = ItemStock::where('item_id', $item_id)->sum('qty');
+            // Compare the total stock quantity with the required amount
+            return $totalStock;
+        });
+        return $data >= $stockNeeded;;
     }
     /**
      * Create a new item stock record with the provided parameters.
@@ -32,11 +41,11 @@ class ItemStockService
      * @param array $param Array containing parameters for creating item stock.
      * @return \App\Models\ItemStock Created ItemStock object.
      */
-    public function updateStock($itemStock, $val)
+    public function updateStock($itemStock,$cogs, $val)
     {
         // Create a new item stock record using the provided parameters
-        // $this->deductStock($itemStock, $itemStock->qty, "Updating process");
-        // $this->addStock($itemStock, $itemStock->qty);
+        //$this->deductStock($itemStock, $itemStock->qty, "Updating process");
+        //$this->addStock($itemStock, $val);
         return $itemStock;
     }
     /**
@@ -47,6 +56,7 @@ class ItemStockService
      */
     public function createStock($item_id, $cogs, $qty)
     {
+
         // Create a new item stock record using the provided parameters
         $itemStock = ItemStock::create(['item_id' => $item_id, 'cogs' => $cogs]);
 

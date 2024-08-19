@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ImageFile extends Model
 {
-    use HasFactory;
+    use HasFactory, Cacheable;
 
 
     /**
@@ -47,7 +48,7 @@ class ImageFile extends Model
         });
     }
 
-   
+
 
     /**
      * Get the stocks of the item.
@@ -58,6 +59,4 @@ class ImageFile extends Model
     {
         return $this->hasOne(Item::class);
     }
-
-   
 }

@@ -5,25 +5,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
- * @OA\Schema(
- *     schema="StoreCategoryRequest",
- *     type="object",
- *     title="Store Category Request",
- *     description="Store Category Request model",
- *     required={"name", "images"},
- *     @OA\Property(
- *         property="name",
- *         type="string",
- *         description="Name of the category"
- *     ),
- *     @OA\Property(
- *         property="images",
- *         type="string",
- *         description="Images of the category"
- *     )
- * )
- */
+
 class StoreCategoryRequest extends FormRequest
 {
     /**
@@ -31,7 +13,7 @@ class StoreCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array(auth()->user()->role_id, [1, 2]);
+        return $this->user()->can('manage_category');
     }
 
     /**
@@ -43,7 +25,6 @@ class StoreCategoryRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'images' => 'required',
         ];
     }
 }

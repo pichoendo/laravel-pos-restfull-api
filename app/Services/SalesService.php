@@ -2,19 +2,20 @@
 
 namespace App\Services;
 
+use App\Models\Item;
 use App\Models\Sales;
 use App\Models\SalesItem;
 use App\Models\SalesPaymentWithCard;
 use App\Models\SalesWithCoupon;
 use App\Notifications\SalesReport;
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class SalesService
 {
-    private MemberSalesPointLogService $memberSalesPointLogService;
-    private EmployeeComissionLogService $employeeComissionLogService;
-    private ItemStockService $itemStockService;
+
 
     /**
      * SalesService constructor.
@@ -24,14 +25,10 @@ class SalesService
      * @param ItemStockService $itemStockService
      */
     public function __construct(
-        MemberSalesPointLogService $memberSalesPointLogService,
-        EmployeeComissionLogService $employeeComissionLogService,
-        ItemStockService $itemStockService
-    ) {
-        $this->itemStockService = $itemStockService;
-        $this->memberSalesPointLogService = $memberSalesPointLogService;
-        $this->employeeComissionLogService = $employeeComissionLogService;
-    }
+        public MemberSalesPointLogService $memberSalesPointLogService,
+        public EmployeeComissionLogService $employeeComissionLogService,
+        public ItemStockService $itemStockService
+    ) {}
 
     /**
      * Create a new sales record.
@@ -73,18 +70,18 @@ class SalesService
      * @param bool $update
      * @return void
      */
-    private function processSalesItems(Sales $sales, array $param, bool $update = false): void
+    private function processSalesItems(Sales $sales, array $params, bool $update = false): void
     {
         // Get existing sales items if updating
         $existingSalesItems = $update ? $sales->items->keyBy('item_id') : [];
 
         // Iterate through each item in the cart
-        foreach ($param['cart'] as $item_cart) {
+        foreach ($params['cart'] as $item_cart) {
             $itemId = $item_cart['item_id'];
             $quantity = $item_cart['qty'];
-
+            $item = Item::find($itemId);
             // Check if there is enough stock for the item
-            if ($this->itemStockService->checkStock($item_cart, $quantity)) {
+            if ($this->itemStockService->checkStock($itemId, $quantity)) {
                 $salesItem = $update ? $existingSalesItems->get($itemId) : false;
                 if ($salesItem) {
                     // Calculate the quantity difference
@@ -95,7 +92,7 @@ class SalesService
                         $this->itemStockService->deductStock($itemId, $quantityDifference, $salesItem);
                     } else {
                         // Add stock for the difference
-                        $this->itemStockService->addStock($salesItem->stock_flow, abs($quantityDifference), $salesItem);
+                        $this->itemStockService->addStock($salesItem->stock_flow->itemStock, abs($quantityDifference));
                     }
                     // Update the sales item
                     $salesItem->update($item_cart);
@@ -106,6 +103,8 @@ class SalesService
                     // Deduct stock for the new sales item
                     $this->itemStockService->deductStock($itemId, $quantity, $salesItem);
                 }
+            } else {
+                throw new Exception("Stock of $item->name is not enough only($item->stock_count)");
             }
         }
     }
@@ -118,18 +117,34 @@ class SalesService
      * @param int $perPage Number of items per page for pagination.
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getData($param, $page, $perPage): LengthAwarePaginator
+    public function getData($search, $page, $perPage): LengthAwarePaginator
     {
-        $query = Sales::query();
+        // Generate a unique cache key based on page, perPage, and search parameters
+        $key = "sales:page[$page]:perPage[$perPage]:search[$search]";
 
-        if (isset($param['search'])) {
-            $search = $param['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
-        }
+        // Retrieve data from cache or execute the query and store the result
+        $data = Cache::remember($key, now()->addDay(1), function () use ($search, $key, $perPage) {
+            $query = Sales::query();
 
-        return $query->paginate($perPage);
+            // Maintain a list of cache keys for easy invalidation later
+            $listKey = "cache_key_list_sales";
+            $list = Cache::get($listKey, []);
+
+            if (!in_array($key, $list)) {
+                $list[] = $key;
+                Cache::put($listKey, $list, 600); // Store the list for 10 minutes
+            }
+
+            // Apply search filter if search parameter is provided
+            if (!empty($search)) {
+                $query->where('name', 'LIKE', "%{$search}%");
+            }
+
+            // Return paginated results
+            return $query->paginate($perPage);
+        });
+
+        return $data;
     }
 
     /**
@@ -142,9 +157,15 @@ class SalesService
     private function applyDiscount(Sales $sales, int $coupon_id): void
     {
         if ($sales->coupon) {
-            $sales->payWithCoupon()->save(SalesWithCoupon::create(['coupon_id' => $coupon_id]));
+            // Create the SalesWithCoupon entry and associate it with the sales transaction
+            $salesWithCoupon = SalesWithCoupon::create(['coupon_id' => $sales->coupon->id]);
+            $sales->payWithCoupon()->save($salesWithCoupon);
+
+            // Retrieve the coupon's value
             $couponValue = $sales->coupon->value;
-            if ($sales->discount != $couponValue) {
+
+            // Update the discount on the sale if it's different from the coupon value
+            if ($sales->discount !== $couponValue) {
                 $sales->update(['discount' => $couponValue]);
             }
         }
@@ -201,12 +222,12 @@ class SalesService
                     $this->processAfterSales($sales, $param['card_no'] ?? null);
                 } else {
                     foreach ($sales->items as $item) {
-                        $this->itemStockService->rollback($item->operation);
+                        $this->itemStockService->rollback($item->stock_flow);
                     }
                 }
             }
-
-            return $sales;
+    
+            return Sales::with(['items'])->find($sales->id);
         });
     }
 
@@ -221,7 +242,7 @@ class SalesService
     {
         $itemsToDelete = $sales->items()->whereNotIn('item_id', $itemOnNewCart)->with(['operation'])->get();
         foreach ($itemsToDelete as $item) {
-            $this->itemStockService->addStock($item->operation, $item->qty, $item, 'canceled item');
+            $this->itemStockService->addStock($item->operation, $item->qty, 'canceled item');
             $item->delete();
         }
     }
@@ -249,8 +270,8 @@ class SalesService
         $sub_total = $sales->items()->sum('sub_total') - $sales->discount;
         $sales->update([
             'sub_total' => $sub_total,
-            'tax' => $sub_total * 0.01,
-            'total' => $sub_total * 1.01
+            'tax' => round($sub_total * 0.1),
+            'total' => round($sub_total * 1.1)
         ]);
     }
 }

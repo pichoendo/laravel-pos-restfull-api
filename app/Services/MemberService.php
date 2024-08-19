@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Member;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class MemberService
 {
@@ -26,20 +27,29 @@ class MemberService
      * @param array $param
      * @return Member
      */
-    public function getData($param, $page, $perPage): LengthAwarePaginator
+    public function getData($search, $page, $perPage): LengthAwarePaginator
     {
-        $query = Member::query();
+        $key = "member:page[$page]:perPage[$perPage]:search[$search]";
 
-        if (isset($param['search'])) {
-            $search = $param['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
-        }
+        $data = Cache::remember($key, now()->addHours(1), function () use ($search, $key, $perPage) {
+            $query = Member::query();
+            $listKey = "cache_key_list_member";
+            $list = Cache::get($listKey, []);
+            $list[] = $key;
+            Cache::put($listKey, $list, 600);
 
-        return $query->paginate($perPage);
+            if (isset($param['search'])) {
+                $search = $param['search'];
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%");
+                });
+            }
+
+            return $query->paginate($perPage);
+        });
+        return $data;
     }
-    
+
     /**
      * Update an existing member.
      *
@@ -78,13 +88,22 @@ class MemberService
      *                                        two elements, it will return records between
      *                                        those dates.
      */
-    public function getSalesList($member, $param): Collection
+    public function getSalesList($member, $page, $perPage, $dateRange): Collection
     {
-        $query = $member->sales();
-        if (isset($param['dateRange']) && count($param['dateRange']) === 2)
-            $query = $query->whereBetween('created_at', $param['dateRange']);
+        $key = "member:id[$member->id]page[$page]:perPage[$perPage]:dateRange[$dateRange]";
 
-        return $query->get();
+        $data = Cache::remember($key, now()->addDay(1), function () use ($dateRange, $key, $member) {
+            $query = $member->sales();
+            $listKey = "cache_key_list_member_{$member->id}_sales_list";
+            $list = Cache::get($listKey, []);
+            $list[] = $key;
+            Cache::put($listKey, $list, 600);
+            if (isset($dateRange) && count($dateRange) === 2)
+                $query = $query->whereBetween('created_at', $dateRange);
+
+            return $query->get();
+        });
+        return $data;
     }
 
     /**
@@ -95,15 +114,24 @@ class MemberService
      *                     The 'dateRange' key can be set to an array with two dates (start and end) to filter the logs within that range.
      * @return Collection Returns a Laravel Collection of the member's sales point logs, ordered by descending sales count.
      */
-    public function getMemberPointLog($member, $param): Collection
+    public function getMemberPointLog($member, $page, $perPage, $dateRange): Collection
     {
-        $query = $member->sales_point()->whereHas('sales', function ($query) use ($param) {
-            if (isset($param['dateRange']) && count($param['dateRange']) === 2)
-                $query = $query->whereBetween('created_at', $param['dateRange']);
-        })->orderByDesc('sales_count');
+        $key = "member:id[$member->id]page[$page]:perPage[$perPage]:dateRange[$dateRange]";
+
+        $data = Cache::remember($key, now()->addDay(1), function () use ($dateRange, $key, $member) {
+            $listKey = "cache_key_list_member_{$member->id}_log_list";
+            $list = Cache::get($listKey, []);
+            $list[] = $key;
+            Cache::put($listKey, $list, 600);
+            $query = $member->sales_point()->whereHas('sales', function ($query) use ($dateRange) {
+                if (isset($dateRange) && count($dateRange) === 2)
+                    $query = $query->whereBetween('created_at', $dateRange);
+            })->orderByDesc('sales_count');
 
 
-        return $query->get();
+            return $query->get();
+        });
+        return $data;
     }
 
     /**
@@ -118,15 +146,24 @@ class MemberService
      *                     - 'dateRange': An array containing two dates to filter the 'sales' by their 'created_at' timestamps.
      * @return Collection A Laravel Collection containing members sorted by their associated sales count in descending order.
      */
-    public function getListOfRoyalEmployees($param): Collection
+    public function getListOfLoyalMember($page, $perPage, $dateRange): Collection
     {
-        $query = Member::whereHas('sales', function ($query) use ($param) {
-            if (isset($param['dateRange']) && count($param['dateRange']) === 2)
-                $query = $query->whereBetween('created_at', $param['dateRange']);
-        })->withCount('sales')
-            ->orderByDesc('sales_count');
+        $key = "member:royal:page[$page]:perPage[$perPage]:dateRange[$dateRange]";
+
+        $data = Cache::remember($key, now()->addDay(1), function () use ($dateRange, $key) {
+            $listKey = "cache_key_list_member_royal_list";
+            $list = Cache::get($listKey, []);
+            $list[] = $key;
+            Cache::put($listKey, $list, 600);
+            $query = Member::whereHas('sales', function ($query) use ($dateRange) {
+                if (isset($dateRange) && count($dateRange) === 2)
+                    $query = $query->whereBetween('created_at', $dateRange);
+            })->withCount('sales')
+                ->orderByDesc('sales_count');
 
 
-        return $query->get();
+            return $query->get();
+        });
+        return $data;
     }
 }

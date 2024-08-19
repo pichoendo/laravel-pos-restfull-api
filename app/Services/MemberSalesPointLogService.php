@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\MemberSalesPointLog;
 use App\Models\Sales;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class MemberSalesPointLogService
@@ -15,14 +16,22 @@ class MemberSalesPointLogService
      * @param Sales $sales
      * @return void
      */
-    public function getData($params): Collection
+    public function getData($dateRange, $perPage, $page): Collection
     {
-        $query =  MemberSalesPointLog::query();
-        if (isset($paramsp['dateRange'])) {
-            if (isset($params['dateRange']) && count($params['dateRange']) === 2)
-                $query = $query->whereBetween('created_at', $params['dateRange']);
-        }
-        return $query->get();
+        $key = "MemberSalesPointLog:get:dateRanage[$dateRange]:page[$page]:perPage[$perPage]";
+        $data = Cache::remember($key, now()->addHours(1), function () use ($dateRange, $perPage, $key) {
+            $query =  MemberSalesPointLog::query();
+            $listKey = "cache_key_list_member_sales_point";
+            $list = Cache::get($listKey, []);
+            $list[] = $key;
+            Cache::put($listKey, $list, 600);
+            if (isset($dateRange)) {
+                if (isset($dateRange) && count($dateRange) === 2)
+                    $query = $query->whereBetween('created_at', $dateRange);
+            }
+            return $query->paginate($perPage);
+        });
+        return $data;
     }
     /**
      * Add points to member for a successful sales transaction.

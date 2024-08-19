@@ -8,22 +8,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 
 
-/**
- * @OA\Schema(
- *      schema="LoginRequest",
- *      required={"username", "password"},
- *      @OA\Property(
- *          property="username",
- *          type="string",
- *          description="User's username"
- *      ),
- *      @OA\Property(
- *          property="password",
- *          type="string",
- *          description="User's password"
- *      )
- * )
- */
 class LoginRequest extends FormRequest
 {
     /**
@@ -45,13 +29,5 @@ class LoginRequest extends FormRequest
             'username' => 'required',
             'password' => 'required',
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            'message' => 'Validation Failed',
-            'errors' => $validator->errors(),
-        ], 422));
     }
 }

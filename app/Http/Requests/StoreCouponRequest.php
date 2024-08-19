@@ -4,17 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
- * @OA\Schema(
- *     schema="StoreCouponRequest",
- *     title="StoreCouponRequest",
- *     description="Store Coupon Request",
- *     required={"name", "code", "value"},
- *     @OA\Property(property="name", type="string", example="Summer Sale"),
- *     @OA\Property(property="code", type="string", example="SUMMER20"),
- *     @OA\Property(property="value", type="decimal", example=20.5),
- * )
- */
+
 class StoreCouponRequest extends FormRequest
 {
     /**
@@ -22,7 +12,7 @@ class StoreCouponRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array(auth()->user()->role_id, [1, 2]);
+        return $this->user()->can('manage_coupon');
     }
 
     /**

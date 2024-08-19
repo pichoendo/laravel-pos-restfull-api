@@ -2,38 +2,24 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * @OA\Schema(
- *     schema="Coupon",
- *     title="Coupon",
- *     description="Coupon model",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="uuid", type="string", format="uuid", example="e602c7b7-0e3d-4d45-b9e7-7f1f4a8845b1"),
- *     @OA\Property(property="name", type="string", example="Summer Sale"),
- *     @OA\Property(property="code", type="string", example="SUMMER20"),
- *     @OA\Property(property="value", type="decimal", example=20.5),
- *     @OA\Property(property="created_at", type="string", format="date-time"),
- *     @OA\Property(property="updated_at", type="string", format="date-time"),
- *     @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true),
- *     @OA\Property(property="created_by", type="integer", example=1),
- *     @OA\Property(property="updated_by", type="integer", example=1),
- * )
- */
+
 class Coupon extends Model
 {
-    use HasFactory, SoftDeletes;
-    
+    use HasFactory, SoftDeletes ,Cacheable;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
+        'uuid',
         'name',
         'code',
         'value',
@@ -62,10 +48,17 @@ class Coupon extends Model
             }
             $model->created_by = auth()->id();
             $model->updated_by = auth()->id();
+            $model->clearCache();
         });
 
         static::updating(function ($model) {
             $model->updated_by = auth()->id();
+            $model->clearCache(['cache_key_list_coupon_most_usage', "cache_key_list_coupon_usage_$model->id"]);
+        });
+
+        static::deleted(function ($model) {
+            $model->updated_by = auth()->id();
+            $model->clearCache(['cache_key_list_coupon_most_usage', "cache_key_list_coupon_usage_$model->id"]);
         });
     }
 

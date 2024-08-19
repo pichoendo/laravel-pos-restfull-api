@@ -13,12 +13,12 @@ class CategoryResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        return $this->resource ? [
             'id' => $this->id,
             'uuid' => $this->uuid,
             'name' => $this->name,
             'images' => $this->images,
-        ];
+        ] : [];
     }
 
     /**
@@ -32,12 +32,7 @@ class CategoryResource extends JsonResource
 
         return [
             'data' => $resource->map(function ($model) {
-                return [
-                    'id' => $model->id,
-                    'uuid' => $model->uuid,
-                    'name' => $model->name,
-                    'images' => $model->images,
-                ];
+                return (new CategoryResource($model))->toArray('');
             }),
             'pagination' => [
                 'current_page' => $resource->currentPage(),

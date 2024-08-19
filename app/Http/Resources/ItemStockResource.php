@@ -17,7 +17,7 @@ class ItemStockResource extends JsonResource
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
-            'item_name' => $this->item->name,
+            'item_name' => $this->item?->name,
             'cogs' => $this->cogs,
             'qty' => $this->qty,
         ];
@@ -33,13 +33,7 @@ class ItemStockResource extends JsonResource
     {
         return [
             'data' => $resource->map(function ($model) {
-                return [
-                    'id' => $model->id,
-                    'uuid' => $model->uuid,
-                    'item_name' => $model->item->name,
-                    'cogs' => $model->cogs,
-                    'qty' => $model->qty,
-                ];
+                return (new ItemStockResource($model))->toArray('');
             }),
             'pagination' => [
                 'current_page' => $resource->currentPage(),

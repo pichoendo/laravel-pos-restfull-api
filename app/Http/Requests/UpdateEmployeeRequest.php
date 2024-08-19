@@ -3,16 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use OpenApi\Annotations as OA;
+use Illuminate\Validation\Rule;
 
-/**
- * @OA\Schema(
- *      title="Update Employee Request",
- *      description="Update Employee request body data",
- *      type="object",
- *      required={"name", "phone_no", "role_id", "address"}
- * )
- */
 class UpdateEmployeeRequest extends FormRequest
 {
 
@@ -21,7 +13,7 @@ class UpdateEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user()->role_id == 1;
+        return $this->user()->can('manage_employee');
     }
 
     /**
@@ -31,12 +23,13 @@ class UpdateEmployeeRequest extends FormRequest
      */
     public function rules(): array
     {
+        $employeeId = $this->route('employee');
         return [
-            'name'  => 'required|string|max:86',
-            'email' => 'required|unique:employees,email',
-            'phone_no'  => 'required|string|max:18',
-            'role_id' => 'required|integer',
-            'address' => 'required|string|255',
+            'name'  => 'string|max:86',
+            'email' => [Rule::unique('employees')->ignore($employeeId)],
+            'phone_no'  => 'string|max:18',
+            'role_id' => 'integer',
+            'address' => 'string|max:255',
         ];
     }
 }

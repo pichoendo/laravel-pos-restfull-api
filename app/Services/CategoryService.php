@@ -4,36 +4,62 @@ namespace App\Services;
 
 use App\Models\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
+
 
 class CategoryService
 {
-
     /**
      * Retrieves paginated category data based on search parameters.
-     * 
-     * @param array $param Associative array of parameters where 'search' key can be used to filter results.
+     *
+     * This method fetches categories with pagination and optional search filtering.
+     * It uses caching to improve performance by storing and reusing query results.
+     *
+     * @param string $search The search term to filter categories by name.
+     * @param int $page The page number for pagination.
      * @param int $perPage The number of records to return per page.
      * @return LengthAwarePaginator A paginator instance containing the results.
      */
-    public function getData($param, $page, $perPage): LengthAwarePaginator
+    public function getData(string $search, int $page, int $perPage): LengthAwarePaginator
     {
-        $query = Category::query();
+        // Cache key for storing and retrieving paginated categories with filters
+        $key = "category:page[$page]:perPage[$perPage]:search[$search]";
 
-        if (isset($param['search'])) {
-            $search = $param['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
-        }
+        $data = Cache::remember($key, now()->addHours(1), function () use ($search, $perPage, $key) {
+            // Start query for categories
+            $query = Category::query();
 
-        return $query->paginate($perPage);
+            // Cache key for storing and retrieving the list of cache keys for categories
+            $listKey = "cache_key_list_category";
+            $list = Cache::get($listKey, []);
+
+            // Add current cache key to the list if it's not already present
+            if (!in_array($key, $list)) {
+                $list[] = $key;
+            }
+            Cache::put($listKey, $list, 600);
+
+            // Apply search filter if a search term is provided
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%");
+                });
+            }
+
+            // Return paginated results
+            return $query->paginate($perPage);
+        });
+
+        return $data;
     }
 
     /**
      * Create a new category.
      *
-     * @param array $param
-     * @return Category
+     * This method creates a new category record in the database with the provided parameters.
+     *
+     * @param array $param Associative array of category attributes.
+     * @return Category The created Category model instance.
      */
     public function create(array $param): Category
     {
@@ -43,9 +69,11 @@ class CategoryService
     /**
      * Update an existing category.
      *
-     * @param Category $model
-     * @param array $param
-     * @return Category
+     * This method updates the specified category with the provided parameters.
+     *
+     * @param Category $model The Category model instance to update.
+     * @param array $param Associative array of attributes to update.
+     * @return Category The updated Category model instance.
      */
     public function update(Category $model, array $param): Category
     {
@@ -56,9 +84,11 @@ class CategoryService
     /**
      * Delete a category.
      *
-     * @param Category $model
-     * @return bool|null
-     * @throws \Exception
+     * This method deletes the specified category from the database.
+     *
+     * @param Category $model The Category model instance to delete.
+     * @return bool|null True if the category was deleted, false otherwise, or null if deletion fails.
+     * @throws \Exception If an exception occurs during deletion.
      */
     public function destroy(Category $model): ?bool
     {
@@ -66,27 +96,55 @@ class CategoryService
     }
 
     /**
-     * Retrieves a list of sales items associated with a given category.
-     * 
-     * @param Category $category The category for which the sales items are to be retrieved.
-     * @param array $param Additional parameters to filter the sales items.
-     * - 'dateRange': An array containing start and end dates to filter items by creation date.
-     * - 'member': A member identifier to filter items by member.
-     * 
-     * @return Category A collection of sales items that belong to the specified category and match the given parameters.
+     * Retrieve a paginated list of items for a specific category with optional filters.
+     *
+     * This method fetches items associated with the specified category, applying filters for low stock
+     * and search terms. The results are paginated and cached to improve performance.
+     *
+     * @param Category $category The Category model instance whose items are to be retrieved.
+     * @param string $search The search term to filter items by name.
+     * @param int $page The page number for pagination.
+     * @param int $perPage The number of records to return per page.
+     * @param bool $isLowStock A flag to filter items with low stock (true) or not (false).
+     * @return LengthAwarePaginator A paginator instance containing the results.
      */
-    public function getListOfItems(Category $category, array $param): Category
+    public function getListOfItems(Category $category, string $search, int $page, int $perPage, bool $isLowStock): LengthAwarePaginator
     {
-        $query = $category->items();
-        if (isset($param['isLowStock']))
-            if ($param['isLowStock'] == 1)
-                $query = $query->filter(function ($category) {
-                    return $category->stock_count < 10;
+        // Cache key for storing and retrieving paginated items with filters
+        $key = "categoryItemsByid:id[{$category->id}]:page[$page]:perPage[$perPage]:search[$search]:lowStock[{$isLowStock}]";
+
+        $data = Cache::remember($key, now()->addHours(1), function () use ($category, $isLowStock, $perPage, $search, $key) {
+            // Start query for items related to the specified category
+            $query = $category->items();
+
+            // Cache key for storing and retrieving the list of cache keys for this category
+            $listKey = "cache_key_list_category_items_By_id_{$category->id}";
+            $list = Cache::get($listKey, []);
+
+            // Add current cache key to the list if it's not already present
+            if (!in_array($key, $list)) {
+                $list[] = $key;
+            }
+            Cache::put($listKey, $list, 600);
+
+            // Apply low stock filter if requested
+            if ($isLowStock) {
+                $query = $query->filter(function ($item) {
+                    return $item->stock_count < 10;
                 });
+            }
 
-        if (isset($param['member']))
-            $query = $query->where('member', $param['member']);
+            // Apply search filter if a search term is provided
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%");
+                });
+            }
 
-        return $query->get();
+            // Return paginated results
+            return $query->paginate($perPage);
+        });
+
+        return $data;
     }
 }

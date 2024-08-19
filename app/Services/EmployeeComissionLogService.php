@@ -10,7 +10,9 @@ class EmployeeComissionLogService
     /**
      * Add commission for a successful sales transaction.
      *
-     * @param Sales $source
+     * Calculates the commission based on the sales subtotal and the employee's commission percentage, and records it in the commission log.
+     *
+     * @param Sales $source The Sales model instance for which to add commission.
      * @return void
      */
     public function addCommission(Sales $source): void
@@ -20,7 +22,7 @@ class EmployeeComissionLogService
         $source->commission_flow()->save(
             EmployeeSalesCommissionLog::create([
                 'description' => "Earned commission from sales {$source->code}",
-                'employee_id' => $source->employee_id,
+                'employee_id' => $source->managed_by,
                 'value' => $point,
                 'type' => 1,
             ])
@@ -30,8 +32,10 @@ class EmployeeComissionLogService
     /**
      * Subtract commission for cancelled sales or monthly deduction.
      *
-     * @param mixed $source
-     * @param float $value
+     * Records a deduction of commission in the commission log. The description depends on whether the source is a sales transaction or a general deduction.
+     *
+     * @param mixed $source The source of the commission deduction. Can be a Sales model instance or another type.
+     * @param float $value The amount to deduct from the commission.
      * @return void
      */
     public function subCommission($source, float $value): void

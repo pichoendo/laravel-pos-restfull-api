@@ -2,29 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * @OA\Schema(
- *     schema="Category",
- *     type="object",
- *     title="Category",
- *     description="Category model",
- *     required={"name"},
- *     @OA\Property(property="uuid", type="string", format="uuid", description="UUID of the category"),
- *     @OA\Property(property="name", type="string", description="Name of the category"),
- *     @OA\Property(property="images", type="string", description="Images of the category"),
- *     @OA\Property(property="status", type="string", description="Status of the category"),
- *     @OA\Property(property="created_at", type="string", format="date-time", description="Creation timestamp"),
- *     @OA\Property(property="updated_at", type="string", format="date-time", description="Update timestamp")
- * )
- */
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Cacheable;
 
     /**
      * The attributes that are mass assignable.
@@ -50,10 +36,16 @@ class Category extends Model
             }
             $model->created_by = auth()->id();
             $model->updated_by = auth()->id();
+            $model->clearCache();
         });
 
         static::updating(function ($model) {
             $model->updated_by = auth()->id();
+            $model->clearCache();
+        });
+        
+        static::deleted(function ($model) {
+            $model->clearCache();
         });
     }
 
@@ -68,7 +60,10 @@ class Category extends Model
     }
 
     /**
-     * Define a relationship with items.
+     * Get all items associated with the sales detail.
+     *
+     * This method defines a one-to-many relationship between the SalesDetail model
+     * and the Item model. Each sales detail can have multiple associated items.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

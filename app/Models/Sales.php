@@ -3,40 +3,21 @@
 namespace App\Models;
 
 use App\Services\CodeGeneratorService;
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * @OA\Schema(
- *     title="Sales",
- *     description="Sales model",
- *     @OA\Xml(
- *         name="Sales"
- *     )
- * )
- */
 class Sales extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Cacheable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     * @OA\Property(property="member_id", type="integer", example=1)
-     * @OA\Property(property="employee_id", type="integer", example=1)
-     * @OA\Property(property="discount", type="number", format="float", example=0.1)
-     * @OA\Property(property="status", type="string", example="pending")
-     * @OA\Property(property="tax", type="number", format="float", example=0.2)
-     * @OA\Property(property="sub_total", type="number", format="float", example=100.00)
-     * @OA\Property(property="total", type="number", format="float", example=120.00)
-     */
 
     protected $fillable = [
-        'member_id',
-        'employee_id',
+        'purchased_by',
+        'code',
+        'managed_by',
         'discount',
         'status',
         'tax',
@@ -44,14 +25,7 @@ class Sales extends Model
         'total'
     ];
 
-    /**
-     * The attributes that should be appended to JSON responses.
-     *
-     * @var array<int, string>
-     */
-    protected $appends = [
-        'code',
-    ];
+    
 
     /**
      * Get the route key for the model.
@@ -70,18 +44,49 @@ class Sales extends Model
      */
     protected static function booted()
     {
-        static::creating(function ($model) {
-            if (empty($model->uuid)) {
-                $model->uuid = (string) Str::uuid();
-            }
+        $userId = auth()->user()->id ?? null;
+
+        static::creating(function ($model) use ($userId) {
+            $model->uuid = $model->uuid ?: (string) Str::uuid();
             $model->code = app(CodeGeneratorService::class)->generateCode("SAL", Sales::class);
-            $model->created_by = auth()->user()->id ?? null;
-            $model->updated_by = auth()->user()->id ?? null;
+            $model->managed_by = $userId;
+            $keyCache = self::generateCacheKeys($model);
+            $model->clearCache($keyCache);
         });
 
-        static::updating(function ($model) {
-            $model->updated_by = auth()->user()->id ?? null;
+        static::updating(function ($model) use ($userId) {
+            $model->managed_by = $userId;
+            $model->clearCache(self::generateCacheKeys($model));
         });
+
+        static::deleted(function ($model) {
+            $keyCache = self::generateCacheKeys($model);
+            $model->clearCache($keyCache);
+        });
+    }
+
+    /**
+     * Generate cache keys based on the model data.
+     *
+     * @param  \App\Models\Model  $model
+     * @return array
+     */
+    protected static function generateCacheKeys($model)
+    {
+        $keyCache = [
+            'cache_key_list_item_top_selling',
+            'cache_key_list_employee_royal',
+            'cache_key_list_member_royal_list',
+            "cache_key_list_employee_{$model->employee_id}_commission_log",
+            "cache_key_list_employee_{$model->employee_id}_managed_sales"
+        ];
+
+        if ($model->coupon) {
+            $keyCache[] = 'cache_key_list_coupon_most_usage';
+            $keyCache[] = "cache_key_list_coupon_usage_{$model->coupon_id}";
+        }
+
+        return $keyCache;
     }
 
     /**
@@ -101,7 +106,7 @@ class Sales extends Model
      */
     public function member()
     {
-        return $this->belongsTo(Member::class);
+        return $this->belongsTo(Member::class, 'purchased_by', 'id');
     }
 
     /**
@@ -111,7 +116,7 @@ class Sales extends Model
      */
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'managed_by', 'id');
     }
 
     /**
@@ -132,15 +137,5 @@ class Sales extends Model
     public function commission_flow()
     {
         return $this->morphOne(EmployeeSalesCommissionLog::class, 'source');
-    }
-
-    /**
-     * Accessor to get the generated code for the sale.
-     *
-     * @return string
-     */
-    public function getCodeAttribute()
-    {
-        return $this->code;
     }
 }

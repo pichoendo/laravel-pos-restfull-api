@@ -2,38 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @OA\Schema(
- *     title="ItemStockOperation",
- *     description="Item Stock Operation Model",
- * )
- */
 class ItemStockOperation extends Model
 {
-    // Your existing code here...
 
-    /**
-     * @OA\Property(
-     *     property="item_id",
-     *     type="integer",
-     *     description="The ID of the item",
-     * )
-     *
-     * @OA\Property(
-     *     property="qty",
-     *     type="integer",
-     *     description="The quantity of the item",
-     * )
-     *
-     * @OA\Property(
-     *     property="type",
-     *     type="string",
-     *     description="The type of operation (e.g., 'add', 'subtract')",
-     * )
-     * */
     protected $fillable = [
         'item_id',
         'qty',

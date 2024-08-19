@@ -2,29 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OpenApi\Annotations as OA;
 
-/**
- * @OA\Schema(
- *     title="SalesWithCoupon",
- *     description="Sales with coupon model",
- *     @OA\Xml(
- *         name="SalesWithCoupon"
- *     )
- * )
- */
 class SalesWithCoupon extends Model
 {
-    use HasFactory;
+    use HasFactory, Cacheable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
-     * @OA\Property(property="coupon_id", type="integer", example=1)
      */
     protected $fillable = [
         'coupon_id'
@@ -49,7 +39,6 @@ class SalesWithCoupon extends Model
      * Get the sales associated with this coupon usage.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     * @OA\Property(property="sales", ref="#/components/schemas/Sales")
      */
     public function sales()
     {

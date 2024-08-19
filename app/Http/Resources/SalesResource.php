@@ -18,11 +18,13 @@ class SalesResource extends JsonResource
             'id' => $this->id,
             'uuid' => $this->uuid,
             'code' => $this->code,
-            'member' => $this->member->name,
+            'member' => $this->member?->name,
+            'employee' => $this->employee?->name,
             'discount' => $this->discount,
             'tax' => $this->tax,
             'sub_total' => $this->sub_total,
             'total' => $this->total,
+            'items' => SaleItemResource::list($this->items)
         ];
     }
 
@@ -36,16 +38,7 @@ class SalesResource extends JsonResource
     {
         return [
             'data' => $resource->map(function ($model) {
-                return [
-                    'id' => $model->id,
-                    'uuid' => $model->uuid,
-                    'code' => $model->code,
-                    'member' => $model->member->name,
-                    'discount' => $model->discount,
-                    'tax' => $model->tax,
-                    'sub_total' => $model->sub_total,
-                    'total' => $model->total,
-                ];
+                return (new SalesResource($model))->toArray('');
             }),
             'pagination' => [
                 'current_page' => $resource->currentPage(),
@@ -54,4 +47,6 @@ class SalesResource extends JsonResource
             ],
         ];
     }
+
+    
 }

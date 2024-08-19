@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
+        Schema::table('roles', function (Blueprint $table) {
             $table->uuid('uuid')->unique();
-            $table->string('name');
+            $table->string('guard_name')->default('api')->change();
             $table->double('basic_salary');
             $table->double('commission_percentage');
-            $table->timestamps();
             $table->softDeletes();
         });
     }
@@ -27,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::table('roles', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+            $table->dropColumn('basic_salary');
+            $table->dropColumn('commission_percentage');
+        });
     }
 };

@@ -2,79 +2,16 @@
 
 namespace App\Models;
 
+
+use App\Traits\Cacheable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use GoldSpecDigital\ObjectOrientedOAS\Objects\Schema;
+use Spatie\Permission\Models\Role as SpatieRole;
 
-/**
- * @OA\Schema(
- *     title="Role",
- *     description="Role model",
- *     @OA\Property(
- *         property="id",
- *         type="integer",
- *         format="int64",
- *         description="The ID of the role"
- *     ),
- *     @OA\Property(
- *         property="name",
- *         type="string",
- *         description="Name of the role"
- *     ),
- *     @OA\Property(
- *         property="basic_salary",
- *         type="number",
- *         format="float",
- *         description="Basic salary for the role"
- *     ),
- *     @OA\Property(
- *         property="commission_percentage",
- *         type="number",
- *         format="float",
- *         description="Commission percentage for the role"
- *     ),
- *     @OA\Property(
- *         property="uuid",
- *         type="string",
- *         description="UUID of the role"
- *     ),
- *     @OA\Property(
- *         property="created_by",
- *         type="integer",
- *         format="int64",
- *         description="User ID who created the role"
- *     ),
- *     @OA\Property(
- *         property="updated_by",
- *         type="integer",
- *         format="int64",
- *         description="User ID who last updated the role"
- *     ),
- *     @OA\Property(
- *         property="created_at",
- *         type="string",
- *         format="date-time",
- *         description="Creation timestamp"
- *     ),
- *     @OA\Property(
- *         property="updated_at",
- *         type="string",
- *         format="date-time",
- *         description="Last update timestamp"
- *     ),
- *     @OA\Property(
- *         property="deleted_at",
- *         type="string",
- *         format="date-time",
- *         description="Soft delete timestamp"
- *     )
- * )
- */
-class Role extends Model
+class Role extends SpatieRole
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Cacheable;
 
     /**
      * The attributes that are mass assignable.
@@ -84,8 +21,19 @@ class Role extends Model
     protected $fillable = [
         'name',
         'basic_salary',
+        'guard_name',
         'commission_percentage'
     ];
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return "uuid";
+    }
 
     /**
      * This method defines routines to be executed when the model is created or updated.
@@ -100,10 +48,17 @@ class Role extends Model
             }
             $model->created_by = auth()->user()->id ?? null;
             $model->updated_by = auth()->user()->id ?? null;
+            $model->clearCache();
         });
 
         static::updating(function ($model) {
             $model->updated_by = auth()->user()->id ?? null;
+            $model->clearCache();
+        });
+
+        static::deleted(function ($model) {
+            $model->updated_by = auth()->user()->id ?? null;
+            $model->clearCache();
         });
     }
 

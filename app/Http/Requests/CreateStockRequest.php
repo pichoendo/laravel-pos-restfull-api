@@ -4,21 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
-* @OA\Schema(
-*   schema="CreateStockRequest",
-*   title="Create Stock Request",
-*   required={"item_id", "cogs"},
-*   @OA\Property(
-*      property="item_id",
-*      type="string"
-*   ),
-*   @OA\Property(
-*      property="cogs",
-*      type="string"
-*   )
-* )
-*/
 class CreateStockRequest extends FormRequest
 {
     /**
@@ -26,7 +11,7 @@ class CreateStockRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array(auth()->user()->role_id, [1, 2]);
+        return $this->user()->can('manage_stock');
     }
 
     /**
