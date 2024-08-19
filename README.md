@@ -1,32 +1,31 @@
-# POS RESTful API
+# SIMPLE POS REST API WITH LARAVEL 11
 
-This project is a personal learning endeavor focused on developing a RESTful API using Laravel.
+This project is a **Simple POS** system that adheres to SOLID principles while implementing several advanced features for a robust and maintainable codebase. The application is designed with three distinct user roles:
 
-## Overview
+- **Supervisor**: Has the highest level of access, capable of performing all operations within the system.
+- **Admin**: Manages inventory, including items and stock.
+- **Cashier**: Handles sales and customer interactions at the point of sale.
 
-This project implements a RESTful API for a Point of Sale (POS) system, designed to streamline retail management operations. Key features include:
+## Features
 
-Authentication & Authorization: Supports roles for supervisors, admins, and cashiers.
-User Management: CRUD operations for user roles and permissions.
-Category & Item Management: Organize inventory efficiently with category and item CRUD operations.
-Coupon Management: Create, apply, and manage discounts seamlessly.
-Sales Order Processing: Handle transactions and calculate commissions based on employee roles.
-Commission & Salary Integration: Commissions are included in monthly salary calculations.
-
-This API project showcases my learning journey in building a comprehensive POS system using Laravel, focusing on key aspects of RESTful API development and advanced features integration.
-
+- **Laravel sanctum**: For robust authentication.
+- **Spatie Permission**: For role-based access control (RBAC).
+- **Laravel Jobs**: To handle email processing asynchronously.
+- **Swagger**: Provides comprehensive API documentation.
+- **Cache**: Improves performance by caching frequently accessed data, reducing database load and speeding up response times.
 
 
+You can access the API documentation at `/api/docs`.
 
-## Technologies Used
-
-- **Laravel 11**
-- **MySQL**
-- **REST API**
+This project not only adheres to SOLID principles but also demonstrates their practical application in building a simple yet effective POS system.
 
 ## Installation
-   ```bash
-   git clone https://github.com/your_username/pos-restful-api.git
-   cd pos-restful-api
-   php artisan migration
-   php artisan db:seed
+
+```bash
+git clone https://github.com/your_username/pos-restful-api.git
+cd pos-restful-api
+composer install
+cp .env.example .env .env.testing
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
